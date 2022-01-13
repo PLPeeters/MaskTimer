@@ -1,0 +1,8 @@
+# Default ignored files
+/shelf/
+/libraries/
+/workspace.xml
+/usage.statistics.xml
+/modules.xml
+/assetWizardSettings.xml
+*.iml

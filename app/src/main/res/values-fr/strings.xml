@@ -1,0 +1,46 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Mask Timer</string>
+    <string name="app_version">Mask Timer %s</string>
+
+    <string name="action_about">À propos</string>
+
+    <string name="mask_type">Type de masque</string>
+    <string name="name">Nom</string>
+    <string name="name_is_taken">Ce nom est déjà pris</string>
+    <string name="add_mask">Ajouter un masque</string>
+
+    <string name="mask_name_and_type">%s (%s)</string>
+    <string name="mask_type_surgical" tools:keep="@string/mask_type_surgical">chirurgical</string>
+    <string name="mask_type_ffp2" tools:keep="@string/mask_type_ffp2">FFP2</string>
+
+    <string name="instructions">Touchez un masque pour chronométrer son port</string>
+    <string name="currently_wearing">Porté actuellement</string>
+
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">%d heure</item>
+        <item quantity="other">%d heures</item>
+    </plurals>
+    <string name="never_worn">Jamais porté</string>
+    <string name="worn_for_less_than_a_minute">Porté pendant moins d\'une minute</string>
+    <string name="worn_for">Porté pendant %1$s</string>
+    <string name="worn_for_and">Porté pendant %1$s et %2$s</string>
+    <string name="mask_timer_channel_name">Timer de masque</string>
+    <string name="mask_timer_channel_description">Vous indique le temps restant avant de changer votre masque</string>
+    <string name="mask_expiry_channel_name">Expiration de masque</string>
+    <string name="mask_expiry_channel_description">Vous indique quand il est temps de changer de masque</string>
+
+    <string name="wearing_your_mask">Vous portez votre masque %2$s %1$s</string>
+    <string name="change_your_mask">Changez votre masque!</string>
+    <string name="replace">Remplacer</string>
+    <string name="delete">Supprimer</string>
+    <string name="list_empty">Vous n\'avez pas encore de masques, ajoutez-en un à l\'aide du bouton dans la coin inférieur.</string>
+    <string name="stop_wearing">Enlever masque</string>
+    <string name="mask_replaced">Masque remplacé</string>
+
+    <string name="about_author">Mask Timer a été créé par <a href="https://www.plpeeters.com/blog/fr/about">Pierre-Louis Peeters</a> dans son temps libre.</string>
+    <string name="about_icon">Icône créée par <a href="https://www.flaticon.com/authors/freepik">Freepik</a> de <a href="https://www.flaticon.com/">www.flaticon.com</a>.</string>
+</resources>

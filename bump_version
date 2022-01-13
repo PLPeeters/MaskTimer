@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+USAGE='\033[1;31mUsage: ./bump_version major|minor|patch\033[0m'
+
+if [ $# -ne 1 ]; then
+    echo -e $USAGE
+    exit 1
+fi
+
+major=$(grep 'versionMajor' gradle.properties | awk -F= '{print $2}')
+minor=$(grep 'versionMinor' gradle.properties | awk -F= '{print $2}')
+patch=$(grep 'versionPatch' gradle.properties | awk -F= '{print $2}')
+
+version="${major}.${minor}.${patch}"
+
+if [[ $1 = 'major' ]]; then
+    ((major++))
+    minor=0
+elif [[ $1 = 'minor' ]]; then
+    ((minor++))
+    patch=0
+elif [[ $1 = 'patch' ]]; then
+    ((patch++))
+else
+    echo -e $USAGE
+    exit 1
+fi
+
+new_version="${major}.${minor}.${patch}"
+
+read -p "Bump version from ${version} to ${new_version}? [y/N] " answer
+
+case ${answer:0:1} in
+    y|Y)
+        if [[ -n $(git status --porcelain) ]]; then
+            echo -e "\033[1;32mStashing changes...\033[0m"
+            git stash push --include-untracked -m "version-bump-autostash"
+            autostashed=1
+        else
+            autostashed=0
+        fi
+
+        sed -i '' -e "s/^versionMajor=.*$/versionMajor=$major/" \
+            -e "s/^versionMinor=.*$/versionMinor=$minor/" \
+            -e "s/^versionPatch=.*$/versionPatch=$patch/" \
+            gradle.properties
+        echo -e "\033[1;34mBumped version to ${new_version}.\033[0m"
+
+        commits_since_last_tag=$(git log $(git describe --tags --abbrev=0)..HEAD --oneline --pretty=format:%s | sed -e 's/^/* /' -e 's/$/\\\\\\/')
+
+        echo -e "\033[1;34mAdding build date to changelog...\033[0m"
+
+        today=$(date +'%Y-%m-%d %H:%M %Z')
+        cleaned_version=$(echo ${new_version} | sed 's/\./\\./g')
+        sed -i '' "3i\\
+        **${new_version}** (${today})\\
+        \\
+        $commits_since_last_tag
+        \\
+        " CHANGELOG.md
+
+        echo -e "\033[1;34mOpening changelog for edition...\033[0m"
+
+        vim +5 '+normal $' +startinsert CHANGELOG.md
+
+        git commit -am "Bump version to ${new_version}"
+        git tag $new_version
+
+        if [[ "$autostashed" -eq 1 ]]; then
+            stash_id=$(git stash list | grep version-bump-autostash | head -n1 | awk -F: '{print $1}')
+
+            echo -e "\033[1;32mUnstashing changes...\033[0m"
+            git stash pop "$stash_id"
+        fi
+    ;;
+esac

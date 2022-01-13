@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Spinner
+        android:id="@+id/type_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginHorizontal="12dp"
+        android:ems="10"
+        android:prompt="@string/mask_type"
+        android:spinnerMode="dropdown"
+        android:entries="@array/mask_type_entries" />
+
+    <EditText
+        android:id="@+id/name_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:ems="10"
+        android:importantForAutofill="no"
+        android:inputType="textCapSentences|textAutoCorrect"
+        android:hint="@string/name"
+        android:minHeight="48dp"
+        android:singleLine="true" />
+
+</LinearLayout>
