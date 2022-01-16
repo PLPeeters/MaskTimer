@@ -49,17 +49,17 @@ case ${answer:0:1} in
         echo -e "\033[1;34mBumped version to ${new_version}.\033[0m"
 
         commits_since_last_tag=$(git log $(git describe --tags --abbrev=0)..HEAD --oneline --pretty=format:%s | sed -e 's/^/* /' -e 's/$/\\\\\\/')
-
+        echo "$commits_since_last_tag"
         echo -e "\033[1;34mAdding build date to changelog...\033[0m"
 
         today=$(date +'%Y-%m-%d %H:%M %Z')
         cleaned_version=$(echo ${new_version} | sed 's/\./\\./g')
-        sed -i '' "3i\\
-        **${new_version}** (${today})\\
-        \\
-        $commits_since_last_tag
-        \\
-        " CHANGELOG.md
+        sed -i '' "3i \\
+**${new_version}** (${today})\\
+\\
+${commits_since_last_tag}
+\\
+" CHANGELOG.md
 
         echo -e "\033[1;34mOpening changelog for edition...\033[0m"
 
