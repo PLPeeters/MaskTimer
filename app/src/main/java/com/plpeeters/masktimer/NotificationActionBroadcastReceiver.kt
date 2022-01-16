@@ -15,12 +15,17 @@ import com.plpeeters.masktimer.utils.dismissMaskTimerExpiredNotification
 import com.plpeeters.masktimer.utils.dismissMaskTimerNotification
 import com.plpeeters.masktimer.utils.createOrUpdateMaskTimerNotification
 import java.util.*
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+
+import com.plpeeters.masktimer.Constants.ACTION_REPLACE
+import com.plpeeters.masktimer.Constants.ACTION_STOP_WEARING
 
 
 class NotificationActionBroadcastReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         context?.let {
             val notificationManager = context.getSystemService(NotificationManager::class.java)
+            val localBroadcastManager = LocalBroadcastManager.getInstance(context)
             val alarmManager = context.getSystemService(AlarmManager::class.java)
             val alarmPendingIntent = Intent(context, AlarmReceiver::class.java).let { alarmIntent ->
                 PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
@@ -31,10 +36,11 @@ class NotificationActionBroadcastReceiver: BroadcastReceiver() {
                     if (mask.wearingSince != null) {
                         mask.stopWearing()
 
-                        // FIXME Update UI if app is open
                         notificationManager.dismissMaskTimerExpiredNotification()
                         notificationManager.dismissMaskTimerNotification()
                         alarmManager.cancel(alarmPendingIntent)
+
+                        localBroadcastManager.sendBroadcast(Intent(ACTION_STOP_WEARING))
 
                         break
                     }
@@ -55,6 +61,8 @@ class NotificationActionBroadcastReceiver: BroadcastReceiver() {
                         )
 
                         Toast.makeText(it, R.string.mask_replaced, Toast.LENGTH_SHORT).show()
+
+                        localBroadcastManager.sendBroadcast(Intent(ACTION_REPLACE))
 
                         break
                     }

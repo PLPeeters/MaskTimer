@@ -9,13 +9,19 @@ import android.view.MenuItem
 import android.app.AlertDialog
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.view.ContextMenu
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.AdapterView
 import androidx.lifecycle.ViewModelProvider
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.plpeeters.masktimer.Constants.ACTION_REPLACE
+import com.plpeeters.masktimer.Constants.ACTION_STOP_WEARING
 import com.plpeeters.masktimer.data.Mask
 import com.plpeeters.masktimer.data.persistence.MaskDao
 import com.plpeeters.masktimer.data.persistence.MaskDatabaseSingleton
@@ -38,6 +44,16 @@ class MainActivity : AppCompatActivity() {
         Intent(this, AlarmReceiver::class.java).let {
             PendingIntent.getBroadcast(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
         }
+    }
+    private val localBroadcastManager: LocalBroadcastManager by lazy { LocalBroadcastManager.getInstance(this) }
+    private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when (intent.action) {
+                ACTION_STOP_WEARING -> onStopWearingMask()
+                ACTION_REPLACE -> onReplaceCurrentMask()
+            }
+        }
+
     }
     private val blinkingAnimation = AlphaAnimation(0F, 1F).apply {
         duration = 250
@@ -84,9 +100,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.replaceButton.setOnClickListener {
-            maskListViewModel.currentMask?.let {
-                replaceCurrentMask()
-            }
+            onReplaceCurrentMask()
         }
 
         binding.fab.setOnClickListener {
@@ -158,8 +172,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun replaceCurrentMask() {
-        maskListViewModel.currentMask!!.let {
+    private fun onReplaceCurrentMask() {
+        maskListViewModel.currentMask?.let {
             onStopWearingMask()
             it.replace()
             onMaskSelected(it)
@@ -174,7 +188,7 @@ class MainActivity : AppCompatActivity() {
         when (item.order) {
             0 -> {  // Replace
                 if (maskListViewModel.currentMask?.equals(mask) == true) {
-                    replaceCurrentMask()
+                    onReplaceCurrentMask()
                 } else {
                     mask.replace()
                     maskListAdapter.notifyDataSetChanged()
@@ -271,6 +285,8 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
 
+        localBroadcastManager.unregisterReceiver(broadcastReceiver)
+
         maskListViewModel.currentMask?.let {
             notificationManager.createOrUpdateMaskTimerNotification(this, it)
         }
@@ -278,6 +294,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+
+        localBroadcastManager.registerReceiver(broadcastReceiver, IntentFilter().apply {
+            addAction(ACTION_REPLACE)
+            addAction(ACTION_STOP_WEARING)
+        })
 
         notificationManager.dismissMaskTimerNotification()
     }
