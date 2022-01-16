@@ -146,6 +146,7 @@ fun NotificationManager.createOrUpdateMaskTimerNotification(context: Context, ma
         setAutoCancel(true)
         setLocalOnly(false)
         setOngoing(true)
+        setSilent(true)
         setSmallIcon(R.mipmap.ic_launcher_foreground_trimmed)
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         setContentTitle(context.resources.getString(R.string.wearing_your_mask, mask.name, mask.getDisplayType(context)))
