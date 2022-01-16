@@ -2,20 +2,18 @@ package com.plpeeters.masktimer
 
 import android.app.Application
 import android.app.NotificationManager
-import com.plpeeters.masktimer.data.Mask
 import com.plpeeters.masktimer.data.Data
-import com.plpeeters.masktimer.data.persistence.MaskDatabaseSingleton
 import com.plpeeters.masktimer.utils.createNotificationChannels
 
 
 class App : Application() {
-    private fun fetchMasksFromDatabase() {
-        Thread {
-            Data.MASKS.addAll(MaskDatabaseSingleton(this).maskDatabaseDao()
-                .getAll().map { maskEntity ->
-                    Mask.fromMaskEntity(maskEntity)
-                })
-        }.start()
+    private fun loadData() {
+        val dataLoadThread = Thread {
+            Data.load(this)
+        }
+
+        dataLoadThread.start()
+        dataLoadThread.join()
     }
 
     override fun onCreate() {
@@ -25,7 +23,7 @@ class App : Application() {
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannels(this)
 
-        // Fetch masks from the database
-        fetchMasksFromDatabase()
+        // Load masks from the database
+        loadData()
     }
 }
