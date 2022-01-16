@@ -1,5 +1,9 @@
 # Changelog
 
+**0.2.1** (2022-01-16 13:17 CET)
+
+* Improved the UI update mechanism
+
 **0.2.0** (2022-01-16 12:47 CET)
 
 * Made the UI update when executing actions via a notification
