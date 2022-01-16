@@ -48,10 +48,7 @@ class MainActivity : AppCompatActivity() {
     private val localBroadcastManager: LocalBroadcastManager by lazy { LocalBroadcastManager.getInstance(this) }
     private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            when (intent.action) {
-                ACTION_STOP_WEARING -> onStopWearingMask()
-                ACTION_REPLACE -> onReplaceCurrentMask()
-            }
+            updateUi()
         }
 
     }
@@ -123,21 +120,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateCurrentMaskState() {
-        maskListViewModel.currentMask?.let {
-            if (it.wearingSince != null) {
-                setupChronometerListener(it)
-            } else {
-                // Was stopped by the notification, this only updates our view
-                onStopWearingMask()
-            }
-        }
-    }
-
     override fun onResume() {
         super.onResume()
 
-        updateCurrentMaskState()
+        updateUi()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -221,47 +207,69 @@ class MainActivity : AppCompatActivity() {
         return super.onContextItemSelected(item)
     }
 
+    private fun updateUi() {
+        maskListViewModel.currentMask.let { currentMask ->
+            if (currentMask?.wearingSince != null) {
+                binding.maskTimer.base = SystemClock.elapsedRealtime() + (currentMask.getExpirationTimestamp() - Date().time)
+                binding.instructions.visibility = View.INVISIBLE
+                binding.maskTimerContainer.visibility = View.VISIBLE
+                binding.wearingMask.text = resources.getString(R.string.wearing_your_mask, currentMask.name, currentMask.getDisplayType(this))
+                binding.maskTimer.start()
+                binding.maskTimer.setTextColor(baseTimerColor)
+
+                if (currentMask.isExpired()) {
+                    binding.maskTimer.onChronometerTickListener = null
+
+                    binding.maskTimer.setTextColor(resources.getColor(R.color.timer_expired_color, theme))
+                    binding.maskTimer.startAnimation(blinkingAnimation)
+                } else {
+                    binding.maskTimer.setTextColor(baseTimerColor)
+                    binding.maskTimer.animation = null
+
+                    binding.maskTimer.setOnChronometerTickListener {
+                        val remainingMillis = it.base - SystemClock.elapsedRealtime()
+
+                        if (remainingMillis <= 0L) {
+                            binding.maskTimer.setTextColor(resources.getColor(R.color.timer_expired_color, theme))
+                            binding.maskTimer.startAnimation(blinkingAnimation)
+
+                            binding.maskTimer.onChronometerTickListener = null
+                        }
+                    }
+                }
+
+            } else {
+                binding.maskTimer.stop()
+                binding.maskTimer.animation = null
+                binding.maskTimer.setTextColor(baseTimerColor)
+
+                binding.maskTimerContainer.visibility = View.INVISIBLE
+                binding.instructions.visibility = View.VISIBLE
+
+                maskListViewModel.currentMask = null
+            }
+
+            maskListAdapter.notifyDataSetChanged()
+        }
+    }
+
     private fun onStopWearingMask(): Mask? {
         maskListViewModel.currentMask?.let {
             alarmManager.cancel(alarmPendingIntent)
-
-            binding.maskTimer.stop()
-            binding.maskTimer.animation = null
-            binding.maskTimer.setTextColor(baseTimerColor)
 
             if (it.wearingSince != null) {
                 it.stopWearing()
             }
 
-            maskListAdapter.notifyDataSetChanged()
-
-            binding.maskTimerContainer.visibility = View.INVISIBLE
-            binding.instructions.visibility = View.VISIBLE
-
             maskListViewModel.currentMask = null
             maskListViewModel.previousMask = it
+
+            updateUi()
 
             return it
         }
 
         return null
-    }
-
-    private fun setupChronometerListener(mask: Mask) {
-        binding.maskTimer.base = SystemClock.elapsedRealtime() + (mask.getExpirationTimestamp() - Date().time)
-        binding.instructions.visibility = View.INVISIBLE
-        binding.maskTimerContainer.visibility = View.VISIBLE
-        binding.wearingMask.text = resources.getString(R.string.wearing_your_mask, mask.name, mask.getDisplayType(this))
-        binding.maskTimer.start()
-
-        binding.maskTimer.setOnChronometerTickListener {
-            val remainingMillis = it.base - SystemClock.elapsedRealtime()
-
-            if (remainingMillis <= 0L) {
-                binding.maskTimer.setTextColor(resources.getColor(R.color.timer_expired_color, theme))
-                binding.maskTimer.startAnimation(blinkingAnimation)
-            }
-        }
     }
 
     private fun onMaskSelected(mask: Mask) {
@@ -279,7 +287,7 @@ class MainActivity : AppCompatActivity() {
             alarmPendingIntent
         )
 
-        setupChronometerListener(mask)
+        updateUi()
     }
 
     override fun onStop() {

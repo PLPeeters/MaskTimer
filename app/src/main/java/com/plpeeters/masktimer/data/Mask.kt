@@ -75,6 +75,10 @@ class Mask(
         return now + wearTimeRemaining
     }
 
+    fun isExpired(): Boolean {
+        return Date().time >= getExpirationTimestamp()
+    }
+
     fun nameMatchesExactly(query: CharSequence): Boolean {
         return name.normalize() == query.normalize()
     }
