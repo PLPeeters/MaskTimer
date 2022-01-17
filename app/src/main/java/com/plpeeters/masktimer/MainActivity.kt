@@ -9,10 +9,7 @@ import android.view.MenuItem
 import android.app.AlertDialog
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.view.ContextMenu
 import android.view.View
 import android.view.animation.AlphaAnimation
@@ -20,20 +17,16 @@ import android.view.animation.Animation
 import android.widget.AdapterView
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.plpeeters.masktimer.Constants.ACTION_REPLACE
-import com.plpeeters.masktimer.Constants.ACTION_STOP_WEARING
 import com.plpeeters.masktimer.data.Mask
 import com.plpeeters.masktimer.data.persistence.MaskDao
 import com.plpeeters.masktimer.data.persistence.MaskDatabaseSingleton
+import com.plpeeters.masktimer.data.persistence.MaskTypes
 import com.plpeeters.masktimer.databinding.ActivityMainBinding
-import com.plpeeters.masktimer.utils.addMaskDialog
-import com.plpeeters.masktimer.utils.dismissMaskTimerExpiredNotification
-import com.plpeeters.masktimer.utils.dismissMaskTimerNotification
-import com.plpeeters.masktimer.utils.createOrUpdateMaskTimerNotification
+import com.plpeeters.masktimer.utils.*
 import java.util.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var maskListAdapter: MaskListAdapter
     private lateinit var maskListViewModel: MaskListViewModel
@@ -41,8 +34,8 @@ class MainActivity : AppCompatActivity() {
     private val notificationManager: NotificationManager by lazy { getSystemService(NotificationManager::class.java) }
     private val alarmManager: AlarmManager by lazy { getSystemService(AlarmManager::class.java)}
     private val alarmPendingIntent: PendingIntent by lazy {
-        Intent(this, AlarmReceiver::class.java).let {
-            PendingIntent.getBroadcast(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
+        Intent(applicationContext, AlarmReceiver::class.java).let {
+            PendingIntent.getBroadcast(applicationContext, 0, it, PendingIntent.FLAG_IMMUTABLE)
         }
     }
     private val localBroadcastManager: LocalBroadcastManager by lazy { LocalBroadcastManager.getInstance(this) }
@@ -50,8 +43,8 @@ class MainActivity : AppCompatActivity() {
         override fun onReceive(context: Context, intent: Intent) {
             updateUi()
         }
-
     }
+    private val sharedPreferences: SharedPreferences by lazy { getSharedPreferences() }
     private val blinkingAnimation = AlphaAnimation(0F, 1F).apply {
         duration = 250
         startOffset = 0
@@ -137,6 +130,12 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
+            R.id.action_settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+
+                return true
+            }
             R.id.action_about -> {
                 val intent = Intent(this, AboutActivity::class.java)
                 startActivity(intent)
@@ -209,15 +208,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateUi() {
         maskListViewModel.currentMask.let { currentMask ->
-            if (currentMask?.wearingSince != null) {
-                binding.maskTimer.base = SystemClock.elapsedRealtime() + (currentMask.getExpirationTimestamp() - Date().time)
+            if (currentMask?.isBeingWorn == true) {
+                binding.maskTimer.base = SystemClock.elapsedRealtime() + (currentMask.getExpirationTimestamp(this) - Date().time)
                 binding.instructions.visibility = View.INVISIBLE
                 binding.maskTimerContainer.visibility = View.VISIBLE
                 binding.wearingMask.text = resources.getString(R.string.wearing_your_mask, currentMask.name, currentMask.getDisplayType(this))
                 binding.maskTimer.start()
                 binding.maskTimer.setTextColor(baseTimerColor)
 
-                if (currentMask.isExpired()) {
+                if (currentMask.isExpired(this)) {
                     binding.maskTimer.onChronometerTickListener = null
 
                     binding.maskTimer.setTextColor(resources.getColor(R.color.timer_expired_color, theme))
@@ -237,7 +236,6 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
-
             } else {
                 binding.maskTimer.stop()
                 binding.maskTimer.animation = null
@@ -255,9 +253,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun onStopWearingMask(): Mask? {
         maskListViewModel.currentMask?.let {
-            alarmManager.cancel(alarmPendingIntent)
-
-            if (it.wearingSince != null) {
+            if (it.isBeingWorn) {
+                alarmManager.cancel(alarmPendingIntent)
                 it.stopWearing()
             }
 
@@ -272,6 +269,14 @@ class MainActivity : AppCompatActivity() {
         return null
     }
 
+    private fun setAlarmForMask(mask: Mask) {
+        alarmManager.set(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            SystemClock.elapsedRealtime() + (mask.getExpirationTimestamp(this) - Date().time),
+            alarmPendingIntent
+        )
+    }
+
     private fun onMaskSelected(mask: Mask) {
         if (onStopWearingMask() == mask) {
             return
@@ -281,11 +286,7 @@ class MainActivity : AppCompatActivity() {
         mask.startWearing()
         maskListAdapter.notifyDataSetChanged()
 
-        alarmManager.set(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + (mask.getExpirationTimestamp() - Date().time),
-            alarmPendingIntent
-        )
+        setAlarmForMask(mask)
 
         updateUi()
     }
@@ -294,6 +295,7 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
 
         localBroadcastManager.unregisterReceiver(broadcastReceiver)
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
 
         maskListViewModel.currentMask?.let {
             notificationManager.createOrUpdateMaskTimerNotification(this, it)
@@ -303,11 +305,29 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
         localBroadcastManager.registerReceiver(broadcastReceiver, IntentFilter().apply {
             addAction(ACTION_REPLACE)
             addAction(ACTION_STOP_WEARING)
         })
 
         notificationManager.dismissMaskTimerNotification()
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+        when (key) {
+            Preferences.SURGICAL_MASK_EXPIRATION_HOURS, Preferences.FFP_MASK_EXPIRATION_HOURS -> {
+                maskListViewModel.currentMask?.let {
+                    if ((key == Preferences.SURGICAL_MASK_EXPIRATION_HOURS && it.type == MaskTypes.SURGICAL) ||
+                            key == Preferences.FFP_MASK_EXPIRATION_HOURS && it.type == MaskTypes.FFP) {
+                        if (!it.isExpired(this)) {
+                            notificationManager.dismissMaskTimerExpiredNotification()
+                        }
+
+                        setAlarmForMask(it)
+                    }
+                }
+            }
+        }
     }
 }

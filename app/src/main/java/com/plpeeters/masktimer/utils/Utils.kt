@@ -1,7 +1,9 @@
 package com.plpeeters.masktimer.utils
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.widget.EditText
+import androidx.preference.PreferenceManager
 import java.text.Normalizer
 
 
@@ -25,4 +27,8 @@ fun Context.getVersionName(): String? {
     val packageInfo = packageManager.getPackageInfo(packageName, 0)
 
     return packageInfo?.versionName
+}
+
+fun Context.getSharedPreferences(): SharedPreferences {
+    return PreferenceManager.getDefaultSharedPreferences(this)
 }

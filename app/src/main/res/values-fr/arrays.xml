@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="mask_type_entries">
+        <item>Chirurgical</item>
+        <item>FFP</item>
+    </string-array>
+
+    <string-array name="mask_expiration_hours_entries">
+        <item>1 heure</item>
+        <item>2 heures</item>
+        <item>4 heures (max. recommandé)</item>
+        <item>6 heures</item>
+        <item>8 heures</item>
+    </string-array>
+</resources>

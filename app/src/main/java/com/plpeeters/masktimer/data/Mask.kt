@@ -1,10 +1,13 @@
 package com.plpeeters.masktimer.data
 
 import android.content.Context
-import com.plpeeters.masktimer.Constants.MAX_WEARING_TIME_MILLIS
+import com.plpeeters.masktimer.Preferences
 import com.plpeeters.masktimer.data.persistence.MaskDatabaseSingleton
 import com.plpeeters.masktimer.data.persistence.MaskEntity
+import com.plpeeters.masktimer.data.persistence.MaskTypes
+import com.plpeeters.masktimer.utils.getSharedPreferences
 import com.plpeeters.masktimer.utils.normalize
+import java.lang.RuntimeException
 import java.util.*
 
 
@@ -22,9 +25,25 @@ class Mask(
 
         private val database = MaskDatabaseSingleton().maskDatabaseDao()
     }
-
     var wornTimeMillis: Long = 0L
     var wearingSince: Long? = null
+
+    val isBeingWorn: Boolean
+        get() {
+            return wearingSince != null
+        }
+    private val totalWearTimeMillisNow: Long
+        get() {
+            val wearingForMillis = wearingSince.let {
+                if (it != null) {
+                    Date().time - it
+                } else {
+                    0
+                }
+            }
+
+            return wearingForMillis + wornTimeMillis
+        }
 
     fun toMaskEntity(): MaskEntity {
         return MaskEntity(type, name)
@@ -60,23 +79,26 @@ class Mask(
         }.start()
     }
 
-    fun getExpirationTimestamp(): Long {
+    fun getExpirationTimestamp(context: Context): Long {
         val now = Date().time
 
-        val wearingForMillis = wearingSince.let {
-            if (it != null) {
-                now - it
-            } else {
-                0
-            }
+        val maxWearingTimeHours = when (type) {
+            MaskTypes.SURGICAL -> context.getSharedPreferences().getString(Preferences.SURGICAL_MASK_EXPIRATION_HOURS, null)?.toInt()
+            MaskTypes.FFP -> context.getSharedPreferences().getString(Preferences.FFP_MASK_EXPIRATION_HOURS, null)?.toInt()
+            else -> throw RuntimeException("Unknown mask type: $type")
         }
-        val wearTimeRemaining = MAX_WEARING_TIME_MILLIS - wornTimeMillis - wearingForMillis
 
-        return now + wearTimeRemaining
+        val maxWearingTime = if (maxWearingTimeHours != null) {
+            maxWearingTimeHours * 3600 * 1000L
+        } else {
+            -1
+        }
+
+        return now + maxWearingTime - totalWearTimeMillisNow
     }
 
-    fun isExpired(): Boolean {
-        return Date().time >= getExpirationTimestamp()
+    fun isExpired(context: Context): Boolean {
+        return Date().time >= getExpirationTimestamp(context)
     }
 
     fun nameMatchesExactly(query: CharSequence): Boolean {

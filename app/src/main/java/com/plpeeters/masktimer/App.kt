@@ -2,6 +2,7 @@ package com.plpeeters.masktimer
 
 import android.app.Application
 import android.app.NotificationManager
+import androidx.preference.PreferenceManager
 import com.plpeeters.masktimer.data.Data
 import com.plpeeters.masktimer.utils.createNotificationChannels
 
@@ -18,6 +19,9 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Set the default preferences
+        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, true)
 
         // Create the notification channels
         val notificationManager = getSystemService(NotificationManager::class.java)

@@ -17,21 +17,20 @@ class BootCompletedReceiver : BroadcastReceiver() {
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
             val notificationManager = context.getSystemService(NotificationManager::class.java)
             val alarmManager = context.getSystemService(AlarmManager::class.java)
-            val alarmPendingIntent = Intent(context, AlarmReceiver::class.java).let { alarmIntent ->
-                PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
+            val alarmPendingIntent = Intent(context.applicationContext, AlarmReceiver::class.java).let { alarmIntent ->
+                PendingIntent.getBroadcast(context.applicationContext, 0, alarmIntent, PendingIntent.FLAG_IMMUTABLE)
             }
 
             Thread {
                 Data.load(context)
 
                 for (mask in Data.MASKS) {
-                    if (mask.wearingSince != null) {
+                    if (mask.isBeingWorn) {
                         notificationManager.createOrUpdateMaskTimerNotification(context, mask)
 
-                        alarmManager.cancel(alarmPendingIntent)
                         alarmManager.set(
                             AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                            SystemClock.elapsedRealtime() + (mask.getExpirationTimestamp() - Date().time),
+                            SystemClock.elapsedRealtime() + (mask.getExpirationTimestamp(context) - Date().time),
                             alarmPendingIntent
                         )
 

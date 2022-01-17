@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ListPreference
+        android:defaultValue="4"
+        android:entries="@array/mask_expiration_hours_entries"
+        android:entryValues="@array/mask_expiration_hours_values"
+        android:key="ffp_mask_expiration_hours"
+        android:title="@string/ffp_mask_expiration_hours"
+        app:useSimpleSummaryProvider="true" />
+
+    <ListPreference
+        android:defaultValue="4"
+        android:entries="@array/mask_expiration_hours_entries"
+        android:entryValues="@array/mask_expiration_hours_values"
+        android:key="surgical_mask_expiration_hours"
+        android:title="@string/surgical_mask_expiration_hours"
+        app:useSimpleSummaryProvider="true" />
+
+</PreferenceScreen>

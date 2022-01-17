@@ -9,11 +9,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import com.plpeeters.masktimer.Constants.REPLACE_EXTRA
-import com.plpeeters.masktimer.Constants.STOP_WEARING_EXTRA
-import com.plpeeters.masktimer.MainActivity
-import com.plpeeters.masktimer.NotificationActionBroadcastReceiver
-import com.plpeeters.masktimer.R
+import com.plpeeters.masktimer.*
 import com.plpeeters.masktimer.data.Mask
 
 
@@ -150,7 +146,7 @@ fun NotificationManager.createOrUpdateMaskTimerNotification(context: Context, ma
         setSmallIcon(R.mipmap.ic_launcher_foreground_trimmed)
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         setContentTitle(context.resources.getString(R.string.wearing_your_mask, mask.name, mask.getDisplayType(context)))
-        setWhen(mask.getExpirationTimestamp())
+        setWhen(mask.getExpirationTimestamp(context))
         setChronometerCountDown(true)
         setUsesChronometer(true)
         setOnlyAlertOnce(true)

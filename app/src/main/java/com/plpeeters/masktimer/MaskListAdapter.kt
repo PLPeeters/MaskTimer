@@ -25,7 +25,7 @@ class MaskListAdapter(
 
         binding.maskNameAndType.text = context.resources.getString(R.string.mask_name_and_type, mask.name, maskType)
 
-        if (mask.wearingSince != null) {
+        if (mask.isBeingWorn) {
             binding.wornDuration.text = context.resources.getString(R.string.currently_wearing)
         } else {
             val wornTimeSeconds = mask.wornTimeMillis / 1000
