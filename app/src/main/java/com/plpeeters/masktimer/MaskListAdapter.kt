@@ -57,6 +57,18 @@ class MaskListAdapter(
             }
         }
 
+        if (baseTextColor == -1) {
+            baseTextColor = binding.wornDuration.textColors.defaultColor
+        }
+
+        if (mask.isExpired(context)) {
+            binding.wornDuration.setTextColor(context.resources.getColor(R.color.timer_expired_color, context.theme))
+            binding.wornDuration.setTypeface(binding.wornDuration.typeface, Typeface.BOLD)
+        } else {
+            binding.wornDuration.setTextColor(baseTextColor)
+            binding.wornDuration.setTypeface(binding.wornDuration.typeface, Typeface.NORMAL)
+        }
+
         return view
     }
 
