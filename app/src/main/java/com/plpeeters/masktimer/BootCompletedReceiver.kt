@@ -30,7 +30,7 @@ class BootCompletedReceiver : BroadcastReceiver() {
 
                         alarmManager.set(
                             AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                            SystemClock.elapsedRealtime() + (mask.getExpirationTimestamp(context) - Date().time),
+                            SystemClock.elapsedRealtime() + mask.getRemainingLifespanMillis(context),
                             alarmPendingIntent
                         )
 

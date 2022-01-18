@@ -79,9 +79,7 @@ class Mask(
         }.start()
     }
 
-    fun getExpirationTimestamp(context: Context): Long {
-        val now = Date().time
-
+    fun getRemainingLifespanMillis(context: Context): Long {
         val maxWearingTimeHours = when (type) {
             MaskTypes.SURGICAL -> context.getSharedPreferences().getString(Preferences.SURGICAL_MASK_EXPIRATION_HOURS, null)?.toInt()
             MaskTypes.FFP -> context.getSharedPreferences().getString(Preferences.FFP_MASK_EXPIRATION_HOURS, null)?.toInt()
@@ -94,11 +92,15 @@ class Mask(
             -1
         }
 
-        return now + maxWearingTime - totalWearTimeMillisNow
+        return maxWearingTime - totalWearTimeMillisNow
+    }
+
+    fun getExpirationTimestamp(context: Context): Long {
+        return Date().time + getRemainingLifespanMillis(context)
     }
 
     fun isExpired(context: Context): Boolean {
-        return Date().time >= getExpirationTimestamp(context)
+        return getRemainingLifespanMillis(context) <= 0
     }
 
     fun nameMatchesExactly(query: CharSequence): Boolean {

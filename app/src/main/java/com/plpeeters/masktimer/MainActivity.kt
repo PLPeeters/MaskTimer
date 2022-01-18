@@ -8,7 +8,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.app.AlertDialog
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.*
 import android.view.ContextMenu
 import android.view.View
@@ -23,7 +22,6 @@ import com.plpeeters.masktimer.data.persistence.MaskDatabaseSingleton
 import com.plpeeters.masktimer.data.persistence.MaskTypes
 import com.plpeeters.masktimer.databinding.ActivityMainBinding
 import com.plpeeters.masktimer.utils.*
-import java.util.*
 
 
 class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -33,11 +31,6 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     private val maskDatabaseDao: MaskDao by lazy { MaskDatabaseSingleton(application).maskDatabaseDao() }
     private val notificationManager: NotificationManager by lazy { getSystemService(NotificationManager::class.java) }
     private val alarmManager: AlarmManager by lazy { getSystemService(AlarmManager::class.java)}
-    private val alarmPendingIntent: PendingIntent by lazy {
-        Intent(applicationContext, AlarmReceiver::class.java).let {
-            PendingIntent.getBroadcast(applicationContext, 0, it, PendingIntent.FLAG_IMMUTABLE)
-        }
-    }
     private val localBroadcastManager: LocalBroadcastManager by lazy { LocalBroadcastManager.getInstance(this) }
     private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -57,7 +50,6 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
-        binding.maskTimerContainer.visibility = View.INVISIBLE
         setContentView(binding.root)
 
         baseTimerColor = binding.maskTimer.textColors.defaultColor
@@ -67,16 +59,6 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             this,
             R.layout.mask_list_item,
             maskListViewModel.masks)
-
-        if (maskListViewModel.masks.size > 0) {
-            binding.listEmpty.visibility = View.INVISIBLE
-            binding.maskList.visibility = View.VISIBLE
-            binding.instructions.visibility = View.VISIBLE
-        } else {
-            binding.maskList.visibility = View.INVISIBLE
-            binding.instructions.visibility = View.INVISIBLE
-            binding.listEmpty.visibility = View.VISIBLE
-        }
 
         binding.maskList.adapter = maskListAdapter
         binding.maskList.setOnItemClickListener { _, _, position, _ ->
@@ -97,14 +79,9 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             AlertDialog.Builder(this).addMaskDialog(maskListViewModel.masks) { type: String, name: String ->
                 val mask = Mask(type, name)
 
-                if (binding.instructions.visibility != View.VISIBLE) {
-                    binding.listEmpty.visibility = View.INVISIBLE
-                    binding.maskList.visibility = View.VISIBLE
-                    binding.instructions.visibility = View.VISIBLE
-                }
-
                 maskListViewModel.masks.add(mask)
-                maskListAdapter.notifyDataSetChanged()
+
+                updateUi()
 
                 Thread {
                     maskDatabaseDao.insert(mask.toMaskEntity())
@@ -189,11 +166,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
                 maskListViewModel.masks.remove(mask)
                 maskListAdapter.notifyDataSetChanged()
 
-                if (maskListViewModel.masks.size == 0) {
-                    binding.maskList.visibility = View.INVISIBLE
-                    binding.instructions.visibility = View.INVISIBLE
-                    binding.listEmpty.visibility = View.VISIBLE
-                }
+                updateUi()
 
                 Thread {
                     maskDatabaseDao.delete(mask.toMaskEntity())
@@ -209,10 +182,11 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     private fun updateUi() {
         maskListViewModel.currentMask.let { currentMask ->
             if (currentMask?.isBeingWorn == true) {
-                binding.maskTimer.base = SystemClock.elapsedRealtime() + (currentMask.getExpirationTimestamp(this) - Date().time)
+                binding.maskTimer.base = SystemClock.elapsedRealtime() + currentMask.getRemainingLifespanMillis(this)
                 binding.instructions.visibility = View.INVISIBLE
                 binding.maskTimerContainer.visibility = View.VISIBLE
                 binding.wearingMask.text = resources.getString(R.string.wearing_your_mask, currentMask.name, currentMask.getDisplayType(this))
+
                 binding.maskTimer.start()
                 binding.maskTimer.setTextColor(baseTimerColor)
 
@@ -242,7 +216,14 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
                 binding.maskTimer.setTextColor(baseTimerColor)
 
                 binding.maskTimerContainer.visibility = View.INVISIBLE
-                binding.instructions.visibility = View.VISIBLE
+
+                if (maskListViewModel.masks.size > 0) {
+                    binding.listEmpty.visibility = View.INVISIBLE
+                    binding.instructions.visibility = View.VISIBLE
+                } else {
+                    binding.instructions.visibility = View.INVISIBLE
+                    binding.listEmpty.visibility = View.VISIBLE
+                }
 
                 maskListViewModel.currentMask = null
             }
@@ -254,7 +235,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     private fun onStopWearingMask(): Mask? {
         maskListViewModel.currentMask?.let {
             if (it.isBeingWorn) {
-                alarmManager.cancel(alarmPendingIntent)
+                alarmManager.cancelMaskAlarm(this)
                 it.stopWearing()
             }
 
@@ -269,14 +250,6 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         return null
     }
 
-    private fun setAlarmForMask(mask: Mask) {
-        alarmManager.set(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + (mask.getExpirationTimestamp(this) - Date().time),
-            alarmPendingIntent
-        )
-    }
-
     private fun onMaskSelected(mask: Mask) {
         if (onStopWearingMask() == mask) {
             return
@@ -286,7 +259,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         mask.startWearing()
         maskListAdapter.notifyDataSetChanged()
 
-        setAlarmForMask(mask)
+        alarmManager.setAlarmForMask(this, mask)
 
         updateUi()
     }
@@ -324,7 +297,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
                             notificationManager.dismissMaskTimerExpiredNotification()
                         }
 
-                        setAlarmForMask(it)
+                        alarmManager.setAlarmForMask(this, it)
                     }
                 }
             }
