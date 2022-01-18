@@ -39,11 +39,16 @@
     <string name="mask_expiry_channel_description">Indicates when it\'s time to change your mask</string>
 
     <string name="wearing_your_mask">Wearing your %1$s %2$s mask</string>
-    <string name="change_your_mask">Change your mask!</string>
+    <string name="paused_wearing_your_mask">Paused wearing your %1$s %2$s mask</string>
+    <string name="replace_your_mask">Time to replace your mask!</string>
     <string name="replace">Replace</string>
     <string name="delete">Delete</string>
     <string name="list_empty">You have no masks yet, add one using the button in the bottom corner.</string>
+    <string name="stop">Stop</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
     <string name="stop_wearing">Stop wearing</string>
+    <string name="swap_to">Swap to %1$s %2$s</string>
     <string name="mask_replaced">Mask replaced</string>
 
     <string name="about_author">Mask Timer was created by <a href="https://www.plpeeters.com/blog/en/about">Pierre-Louis Peeters</a> in his free time.</string>

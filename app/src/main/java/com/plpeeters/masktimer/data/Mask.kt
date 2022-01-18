@@ -27,6 +27,8 @@ class Mask(
     }
     var wornTimeMillis: Long = 0L
     var wearingSince: Long? = null
+    var isPaused = false
+    var isPrevious = false
 
     val isBeingWorn: Boolean
         get() {
@@ -53,10 +55,16 @@ class Mask(
         val now = Date().time
 
         wearingSince = now
+        isPaused = false
 
         Thread {
             database.updateWearingSince(type, name, now)
         }.start()
+    }
+
+    fun pauseWearing() {
+        stopWearing()
+        isPaused = true
     }
 
     fun stopWearing() {

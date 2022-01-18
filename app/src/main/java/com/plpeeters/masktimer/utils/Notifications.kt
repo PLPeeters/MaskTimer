@@ -88,10 +88,10 @@ fun NotificationManager.sendMaskTimerExpiredNotification(context: Context) {
         setOngoing(false)
         setSmallIcon(R.mipmap.ic_launcher_foreground_trimmed)
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-        setContentTitle(context.resources.getString(R.string.change_your_mask))
+        setContentTitle(context.resources.getString(R.string.replace_your_mask))
 
-        addAction(NotificationCompat.Action(null, context.resources.getString(R.string.stop_wearing), stopWearingPendingIntent))
-        addAction(NotificationCompat.Action(null, context.resources.getString(R.string.replace), replacePendingIntent))
+        addAction(NotificationCompat.Action(R.drawable.baseline_stop_24dp, context.resources.getString(R.string.stop_wearing), stopWearingPendingIntent))
+        addAction(NotificationCompat.Action(R.drawable.baseline_restart_alt_24dp, context.resources.getString(R.string.replace), replacePendingIntent))
     }.build()
 
     notify(MASK_TIMER_EXPIRED_NOTIFICATION_ID, notification)
@@ -102,7 +102,7 @@ fun NotificationManager.dismissMaskTimerExpiredNotification() {
 }
 
 @SuppressLint("UnspecifiedImmutableFlag")
-fun NotificationManager.createOrUpdateMaskTimerNotification(context: Context, mask: Mask) {
+fun NotificationManager.createOrUpdateMaskTimerNotification(context: Context, mask: Mask, previousMask: Mask? = null) {
     val pendingIntent: PendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         PendingIntent.getActivity(
             context,
@@ -129,10 +129,22 @@ fun NotificationManager.createOrUpdateMaskTimerNotification(context: Context, ma
         PendingIntent.getBroadcast(context, 0, it, PendingIntent.FLAG_IMMUTABLE)
     }
 
+    val pauseOrResumeWearingPendingIntent = Intent(context, NotificationActionBroadcastReceiver::class.java).apply {
+        putExtra(PAUSE_OR_RESUME_WEARING_EXTRA, true)
+    }.let {
+        PendingIntent.getBroadcast(context, 2, it, PendingIntent.FLAG_IMMUTABLE)
+    }
+
     val replacePendingIntent = Intent(context, NotificationActionBroadcastReceiver::class.java).apply {
         putExtra(REPLACE_EXTRA, true)
     }.let {
         PendingIntent.getBroadcast(context, 1, it, PendingIntent.FLAG_IMMUTABLE)
+    }
+
+    val swapMaskPendingIntent = Intent(context, NotificationActionBroadcastReceiver::class.java).apply {
+        putExtra(SWAP_MASK_EXTRA, true)
+    }.let {
+        PendingIntent.getBroadcast(context, 3, it, PendingIntent.FLAG_IMMUTABLE)
     }
 
     val notification = NotificationCompat.Builder(context, MASK_TIMER_NOTIFICATION_CHANNEL_ID).apply {
@@ -145,14 +157,37 @@ fun NotificationManager.createOrUpdateMaskTimerNotification(context: Context, ma
         setSilent(true)
         setSmallIcon(R.mipmap.ic_launcher_foreground_trimmed)
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-        setContentTitle(context.resources.getString(R.string.wearing_your_mask, mask.name, mask.getDisplayType(context)))
-        setWhen(mask.getExpirationTimestamp(context))
-        setChronometerCountDown(true)
-        setUsesChronometer(true)
         setOnlyAlertOnce(true)
 
-        addAction(NotificationCompat.Action(null, context.resources.getString(R.string.stop_wearing), stopWearingPendingIntent))
-        addAction(NotificationCompat.Action(null, context.resources.getString(R.string.replace), replacePendingIntent))
+        if (!mask.isPaused) {
+            setWhen(mask.getExpirationTimestamp(context))
+            setChronometerCountDown(true)
+            setUsesChronometer(true)
+        }
+
+        addAction(NotificationCompat.Action(R.drawable.baseline_stop_24dp, context.resources.getString(R.string.stop), stopWearingPendingIntent))
+
+        val pauseOrResumeString = if (mask.isBeingWorn) {
+            setContentTitle(context.resources.getString(R.string.wearing_your_mask, mask.name, mask.getDisplayType(context)))
+
+            context.resources.getString(R.string.pause)
+        } else {
+            setContentTitle(context.resources.getString(R.string.wearing_your_mask, mask.name, mask.getDisplayType(context)))
+
+            context.resources.getString(R.string.resume)
+        }
+        val pauseOrResumeIcon = if (mask.isBeingWorn) {
+            R.drawable.baseline_pause_24dp
+        } else {
+            R.drawable.baseline_play_arrow_24dp
+        }
+        addAction(NotificationCompat.Action(pauseOrResumeIcon, pauseOrResumeString, pauseOrResumeWearingPendingIntent))
+
+        if (previousMask != null) {
+            addAction(NotificationCompat.Action(null, context.resources.getString(R.string.swap_to, previousMask.name, previousMask.getDisplayType(context)), swapMaskPendingIntent))
+        } else {
+            addAction(NotificationCompat.Action(R.drawable.baseline_restart_alt_24dp, context.resources.getString(R.string.replace), replacePendingIntent))
+        }
     }.build()
 
     notify(MASK_TIMER_NOTIFICATION_ID, notification)

@@ -12,8 +12,13 @@ class MaskListViewModel: ViewModel() {
 
     init {
         for (mask in masks) {
-            if (mask.wearingSince != null) {
+            if (mask.isBeingWorn || mask.isPaused) {
                 currentMask = mask
+            } else if (mask.isPrevious) {
+                previousMask = mask
+            }
+
+            if (currentMask != null && previousMask != null) {
                 break
             }
         }

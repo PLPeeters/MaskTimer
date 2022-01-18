@@ -1,6 +1,8 @@
 package com.plpeeters.masktimer
 
 const val STOP_WEARING_EXTRA = "STOP_WEARING"
+const val PAUSE_OR_RESUME_WEARING_EXTRA = "PAUSE_OR_RESUME_WEARING"
+const val SWAP_MASK_EXTRA = "SWAP_MASK"
 const val REPLACE_EXTRA = "REPLACE"
 const val ACTION_STOP_WEARING = "STOP_WEARING"
 const val ACTION_REPLACE = "REPLACE"

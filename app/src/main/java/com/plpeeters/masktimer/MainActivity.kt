@@ -67,6 +67,10 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
         registerForContextMenu(binding.maskList)
 
+        binding.pauseWearingButton.setOnClickListener {
+            onPauseCurrentMask()
+        }
+
         binding.stopWearingButton.setOnClickListener {
             onStopWearingMask()
         }
@@ -134,6 +138,21 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         }
     }
 
+    private fun onPauseCurrentMask() {
+        maskListViewModel.currentMask?.let {
+            if (it.isBeingWorn) {
+                it.pauseWearing()
+                binding.maskTimer.stop()
+
+                alarmManager.cancelMaskAlarm(this)
+                binding.pauseWearingButton.setImageResource(R.drawable.baseline_play_arrow_24dp)
+            } else {
+                onMaskSelected(it, true)
+                binding.pauseWearingButton.setImageResource(R.drawable.baseline_pause_24dp)
+            }
+        }
+    }
+
     private fun onReplaceCurrentMask() {
         maskListViewModel.currentMask?.let {
             onStopWearingMask()
@@ -181,34 +200,40 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
     private fun updateUi() {
         maskListViewModel.currentMask.let { currentMask ->
-            if (currentMask?.isBeingWorn == true) {
+            if (currentMask?.isBeingWorn == true || currentMask?.isPaused == true) {
                 binding.maskTimer.base = SystemClock.elapsedRealtime() + currentMask.getRemainingLifespanMillis(this)
                 binding.instructions.visibility = View.INVISIBLE
                 binding.maskTimerContainer.visibility = View.VISIBLE
                 binding.wearingMask.text = resources.getString(R.string.wearing_your_mask, currentMask.name, currentMask.getDisplayType(this))
 
-                binding.maskTimer.start()
-                binding.maskTimer.setTextColor(baseTimerColor)
-
-                if (currentMask.isExpired(this)) {
-                    binding.maskTimer.onChronometerTickListener = null
-
-                    binding.maskTimer.setTextColor(resources.getColor(R.color.timer_expired_color, theme))
-                    binding.maskTimer.startAnimation(blinkingAnimation)
-                } else {
+                if (!currentMask.isPaused) {
+                    binding.pauseWearingButton.setImageResource(R.drawable.baseline_pause_24dp)
+                    binding.maskTimer.start()
                     binding.maskTimer.setTextColor(baseTimerColor)
-                    binding.maskTimer.animation = null
 
-                    binding.maskTimer.setOnChronometerTickListener {
-                        val remainingMillis = it.base - SystemClock.elapsedRealtime()
+                    if (currentMask.isExpired(this)) {
+                        binding.maskTimer.onChronometerTickListener = null
 
-                        if (remainingMillis <= 0L) {
-                            binding.maskTimer.setTextColor(resources.getColor(R.color.timer_expired_color, theme))
-                            binding.maskTimer.startAnimation(blinkingAnimation)
+                        binding.maskTimer.setTextColor(resources.getColor(R.color.timer_expired_color, theme))
+                        binding.maskTimer.startAnimation(blinkingAnimation)
+                    } else {
+                        binding.maskTimer.setTextColor(baseTimerColor)
+                        binding.maskTimer.animation = null
 
-                            binding.maskTimer.onChronometerTickListener = null
+                        binding.maskTimer.setOnChronometerTickListener {
+                            val remainingMillis = it.base - SystemClock.elapsedRealtime()
+
+                            if (remainingMillis <= 0L) {
+                                binding.maskTimer.setTextColor(resources.getColor(R.color.timer_expired_color, theme))
+                                binding.maskTimer.startAnimation(blinkingAnimation)
+
+                                binding.maskTimer.onChronometerTickListener = null
+                            }
                         }
                     }
+                } else {
+                    binding.maskTimer.stop()
+                    binding.pauseWearingButton.setImageResource(R.drawable.baseline_play_arrow_24dp)
                 }
             } else {
                 binding.maskTimer.stop()
@@ -240,7 +265,10 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             }
 
             maskListViewModel.currentMask = null
+
+            maskListViewModel.previousMask?.isPrevious = false
             maskListViewModel.previousMask = it
+            it.isPrevious = true
 
             updateUi()
 
@@ -250,12 +278,17 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         return null
     }
 
-    private fun onMaskSelected(mask: Mask) {
-        if (onStopWearingMask() == mask) {
+    private fun onMaskSelected(mask: Mask, unpausing: Boolean = false) {
+        if (!unpausing && onStopWearingMask() == mask) {
             return
         }
 
         maskListViewModel.currentMask = mask
+
+        if (mask == maskListViewModel.previousMask) {
+            maskListViewModel.previousMask = null
+        }
+
         mask.startWearing()
         maskListAdapter.notifyDataSetChanged()
 
@@ -271,7 +304,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
 
         maskListViewModel.currentMask?.let {
-            notificationManager.createOrUpdateMaskTimerNotification(this, it)
+            notificationManager.createOrUpdateMaskTimerNotification(this, it, maskListViewModel.previousMask)
         }
     }
 

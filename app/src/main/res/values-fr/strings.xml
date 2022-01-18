@@ -35,11 +35,16 @@
     <string name="mask_expiry_channel_description">Vous indique quand il est temps de changer de masque</string>
 
     <string name="wearing_your_mask">Vous portez votre masque %2$s %1$s</string>
-    <string name="change_your_mask">Changez votre masque!</string>
+    <string name="paused_wearing_your_mask">Port de votre masque %2$s %1$s en pause</string>
+    <string name="replace_your_mask">Remplacez votre masque!</string>
     <string name="replace">Remplacer</string>
     <string name="delete">Supprimer</string>
     <string name="list_empty">Vous n\'avez pas encore de masques, ajoutez-en un à l\'aide du bouton dans la coin inférieur.</string>
-    <string name="stop_wearing">Enlever masque</string>
+    <string name="stop">Stop</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Reprendre</string>
+    <string name="stop_wearing">Stop wearing</string>
+    <string name="swap_to">Remettre %2$s %1$s</string>
     <string name="mask_replaced">Masque remplacé</string>
 
     <string name="about_author">Mask Timer a été créé par <a href="https://www.plpeeters.com/blog/fr/about">Pierre-Louis Peeters</a> dans son temps libre.</string>

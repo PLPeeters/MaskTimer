@@ -1,6 +1,7 @@
 package com.plpeeters.masktimer
 
 import android.content.Context
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,8 @@ class MaskListAdapter(
     private val layoutResource: Int,
     private var masks: List<Mask>
 ): ArrayAdapter<Mask>(context, layoutResource, masks) {
+    private var baseTextColor: Int = -1
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val mask = getItem(position)
         val view = convertView ?: LayoutInflater.from(context).inflate(layoutResource, parent, false) as View
@@ -25,7 +28,7 @@ class MaskListAdapter(
 
         binding.maskNameAndType.text = context.resources.getString(R.string.mask_name_and_type, mask.name, maskType)
 
-        if (mask.isBeingWorn) {
+        if (mask.isBeingWorn || mask.isPaused) {
             binding.wornDuration.text = context.resources.getString(R.string.currently_wearing)
         } else {
             val wornTimeSeconds = mask.wornTimeMillis / 1000
