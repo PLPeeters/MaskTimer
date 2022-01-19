@@ -120,7 +120,7 @@
                         android:layout_marginStart="6dp"
                         android:layout_marginEnd="6dp"
                         app:icon="@drawable/baseline_stop_24dp"
-                        android:text="@string/stop_wearing" />
+                        android:text="@string/stop" />
 
                     <Button
                         android:id="@+id/replace_button"
