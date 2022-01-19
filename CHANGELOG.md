@@ -1,5 +1,9 @@
 # Changelog
 
+**0.3.2** (2022-01-19 17:17 CET)
+
+* Fixed missing translation and worn duration style reset in mask list
+
 **0.3.1** (2022-01-19 12:52 CET)
 
 * Changed the label of the stop wearing button so the layout fits on smaller screens
