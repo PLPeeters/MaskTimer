@@ -1,5 +1,9 @@
 # Changelog
 
+**0.3.1** (2022-01-19 12:52 CET)
+
+* Changed the label of the stop wearing button so the layout fits on smaller screens
+
 **0.3.0** (2022-01-19 12:04 CET)
 
 * Added settings to customise the maximum wear time for masks
