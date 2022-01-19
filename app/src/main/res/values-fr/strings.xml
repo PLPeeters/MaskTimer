@@ -43,7 +43,7 @@
     <string name="stop">Stop</string>
     <string name="pause">Pause</string>
     <string name="resume">Reprendre</string>
-    <string name="stop_wearing">Stop wearing</string>
+    <string name="stop_wearing">Enlever</string>
     <string name="swap_to">Remettre %2$s %1$s</string>
     <string name="mask_replaced">Masque remplacé</string>
 

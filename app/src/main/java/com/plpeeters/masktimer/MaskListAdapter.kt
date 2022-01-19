@@ -66,7 +66,7 @@ class MaskListAdapter(
             binding.wornDuration.setTypeface(binding.wornDuration.typeface, Typeface.BOLD)
         } else {
             binding.wornDuration.setTextColor(baseTextColor)
-            binding.wornDuration.setTypeface(binding.wornDuration.typeface, Typeface.NORMAL)
+            binding.wornDuration.setTypeface(binding.wornDuration.typeface, Typeface.ITALIC)
         }
 
         return view
