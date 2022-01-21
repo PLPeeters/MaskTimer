@@ -1,5 +1,9 @@
 # Changelog
 
+**0.3.3** (2022-01-21 12:47 CET)
+
+* Fixed theme issues
+
 **0.3.2** (2022-01-19 17:17 CET)
 
 * Fixed missing translation and worn duration style reset in mask list
