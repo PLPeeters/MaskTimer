@@ -18,6 +18,7 @@ version="${major}.${minor}.${patch}"
 if [[ $1 = 'major' ]]; then
     ((major++))
     minor=0
+    patch=0
 elif [[ $1 = 'minor' ]]; then
     ((minor++))
     patch=0
