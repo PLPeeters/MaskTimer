@@ -11,4 +11,5 @@ const val ACTION_REPLACE = "REPLACE"
 object Preferences {
     const val SURGICAL_MASK_EXPIRATION_HOURS = "surgical_mask_expiration_hours"
     const val FFP_MASK_EXPIRATION_HOURS = "ffp_mask_expiration_hours"
+    const val PREVENT_EXPIRATION_NOTIFICATION_DISMISSAL = "prevent_expiration_notification_dismissal"
 }

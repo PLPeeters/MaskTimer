@@ -18,4 +18,11 @@
         android:title="@string/surgical_mask_expiration_hours"
         app:useSimpleSummaryProvider="true" />
 
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="prevent_expiration_notification_dismissal"
+        android:title="@string/prevent_expiration_notification_dismissal"
+        android:summaryOn="@string/prevent_expiration_notification_dismissal_on"
+        android:summaryOff="@string/prevent_expiration_notification_dismissal_off" />
+
 </PreferenceScreen>

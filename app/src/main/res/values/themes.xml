@@ -17,6 +17,7 @@
         <item name="radioButtonStyle">@style/Theme.MaskTimer.RadioButton</item>
         <item name="alertDialogTheme">@style/Theme.MaskTimer.AlertDialog</item>
         <item name="android:alertDialogTheme">@style/Theme.MaskTimer.AlertDialog</item>
+        <item name="android:colorControlActivated">@color/primary_color</item>
     </style>
 
     <style name="Theme.MaskTimer.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">

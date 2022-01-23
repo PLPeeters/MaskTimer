@@ -60,4 +60,7 @@
 
     <string name="ffp_mask_expiration_hours">Expiration des masques FFP</string>
     <string name="surgical_mask_expiration_hours">Expiration des masques chirurgicaux</string>
+    <string name="prevent_expiration_notification_dismissal">Empêcher l\'enlèvement de la notification d\'expiration du masque</string>
+    <string name="prevent_expiration_notification_dismissal_on">La notification d\'expiration du masque ne peut pas être enlevée</string>
+    <string name="prevent_expiration_notification_dismissal_off">La notification d\'expiration du masque peut être enlevée</string>
 </resources>

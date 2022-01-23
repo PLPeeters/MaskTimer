@@ -85,7 +85,13 @@ fun NotificationManager.sendMaskTimerExpiredNotification(context: Context) {
         setContentIntent(pendingIntent)
         setAutoCancel(true)
         setLocalOnly(false)
-        setOngoing(false)
+
+        if (context.getSharedPreferences().getBoolean(Preferences.PREVENT_EXPIRATION_NOTIFICATION_DISMISSAL, false)) {
+            setOngoing(true)
+        } else {
+            setOngoing(false)
+        }
+
         setSmallIcon(R.mipmap.ic_launcher_foreground_trimmed)
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         setContentTitle(context.resources.getString(R.string.replace_your_mask))
