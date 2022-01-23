@@ -7,13 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Button
+import android.widget.CompoundButton
+import android.widget.EditText
 import com.google.android.material.internal.TextWatcherAdapter
 import com.plpeeters.masktimer.R
 import com.plpeeters.masktimer.data.Mask
 import com.plpeeters.masktimer.databinding.DialogAddMaskBinding
+import com.plpeeters.masktimer.databinding.DialogEditWearTimeBinding
+import kotlin.math.roundToInt
 
 
 typealias MaskDataCallback = (type: String, name: String) -> Unit
+typealias DurationCallback = (durationSeconds: Int, adding: Boolean) -> Unit
 
 
 fun AlertDialog.Builder.addMaskDialog(
@@ -82,6 +87,90 @@ fun AlertDialog.Builder.addMaskDialog(
             setPositiveButtonState(addMaskButton)
         }
     }
+
+    return dialog
+}
+
+fun AlertDialog.Builder.durationDialog(mask: Mask, callback: DurationCallback): AlertDialog {
+    val binding = DialogEditWearTimeBinding.inflate(LayoutInflater.from(context))
+
+    setView(binding.root)
+    setNeutralButton(android.R.string.cancel) { _, _ -> }
+    setPositiveButton(R.string.add_wear_time) { _, _ ->
+        callback(binding.hours.value * 3600 + binding.minutes.value * 60, binding.radioAdd.isChecked)
+    }
+    setTitle(R.string.adjust_wear_time)
+
+    val maskMaxSubtractionMinutes = (mask.wornTimeMillis / 1000.0 / 60.0).roundToInt()
+    val maskUsedLifespanHours = (maskMaxSubtractionMinutes / 60.0).toInt()
+    val maskUsedLifespanMinutesMaxHours = maskMaxSubtractionMinutes % 60
+
+    fun updateHoursRangeMax() {
+        binding.hours.maxValue = if (!binding.radioAdd.isChecked) {
+            maskUsedLifespanHours
+        } else {
+            12
+        }
+    }
+
+    fun updateMinutesRange() {
+        binding.minutes.maxValue = if (!binding.radioAdd.isChecked && binding.hours.value == maskUsedLifespanHours) {
+            maskUsedLifespanMinutesMaxHours
+        } else {
+            59
+        }
+
+        binding.minutes.minValue = if (binding.hours.value > 0) {
+            0
+        } else {
+            1
+        }
+    }
+
+    binding.hours.minValue = 0
+    updateHoursRangeMax()
+    binding.hours.setFormatter {
+        context.resources.getString(R.string.hours_abbr, it)
+    }
+    binding.hours.setOnValueChangedListener { _, _, _ ->
+        updateMinutesRange()
+    }
+
+    // Necessary for the current selection to update its format
+    binding.hours.getChildAt(0).let {
+        if (it is EditText) {
+            it.filters = arrayOfNulls(0)
+        }
+    }
+
+    updateMinutesRange()
+    binding.minutes.setFormatter {
+        context.resources.getString(R.string.minutes_abbr, it)
+    }
+
+    // Necessary for the current selection to update its format
+    binding.minutes.getChildAt(0).let {
+        if (it is EditText) {
+            it.filters = arrayOfNulls(0)
+        }
+    }
+
+    val dialog = create()
+
+    binding.radioAdd.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener {
+        private val positiveButton by lazy { dialog.getButton(AlertDialog.BUTTON_POSITIVE) }
+
+        override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+            updateHoursRangeMax()
+            updateMinutesRange()
+
+            if (isChecked) {
+                positiveButton.setText(R.string.add_wear_time)
+            } else {
+                positiveButton.setText(R.string.subtract_wear_time)
+            }
+        }
+    })
 
     return dialog
 }

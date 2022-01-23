@@ -127,17 +127,6 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         }
     }
 
-    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
-        super.onCreateContextMenu(menu, v, menuInfo)
-
-        if (v.id == binding.maskList.id) {
-            val listPosition = (menuInfo as AdapterView.AdapterContextMenuInfo).position
-
-            menu.add(0, listPosition, 0, R.string.replace)
-            menu.add(0, listPosition, 1, R.string.delete)
-        }
-    }
-
     private fun onPauseCurrentMask() {
         maskListViewModel.currentMask?.let {
             if (it.isBeingWorn) {
@@ -162,6 +151,22 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         }
     }
 
+    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+
+        if (v.id == binding.maskList.id) {
+            val listPosition = (menuInfo as AdapterView.AdapterContextMenuInfo).position
+            val mask = maskListAdapter.getItem(listPosition)
+
+            menu.add(0, listPosition, 0, R.string.replace)
+
+            val adjustWearTime = menu.add(0, listPosition, 1, R.string.adjust_wear_time)
+            adjustWearTime.isEnabled = !mask.isBeingWorn
+
+            menu.add(0, listPosition, 2, R.string.delete)
+        }
+    }
+
     override fun onContextItemSelected(item: MenuItem): Boolean {
         val listPosition = (item.menuInfo as AdapterView.AdapterContextMenuInfo).position
         val mask = maskListAdapter.getItem(listPosition)
@@ -177,7 +182,20 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
                 return true
             }
-            1 -> {  // Delete
+            1 -> {  // Edit wear time
+                AlertDialog.Builder(this).durationDialog(mask) { durationSeconds, adding ->
+                    if (adding) {
+                        mask.addWearTime(durationSeconds)
+                    } else {
+                        mask.subtractWearTime(durationSeconds)
+                    }
+
+                    maskListAdapter.notifyDataSetChanged()
+                }.show()
+
+                return true
+            }
+            2 -> {  // Delete
                 if (maskListViewModel.currentMask?.equals(mask) == true) {
                     onStopWearingMask()
                 }

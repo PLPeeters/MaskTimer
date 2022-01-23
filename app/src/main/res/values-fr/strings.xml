@@ -38,6 +38,13 @@
     <string name="paused_wearing_your_mask">Port de votre masque %2$s %1$s en pause</string>
     <string name="replace_your_mask">Remplacez votre masque!</string>
     <string name="replace">Remplacer</string>
+    <string name="adjust_wear_time">Ajuster le temps de port</string>
+    <string name="add">Ajouter</string>
+    <string name="subtract">Enlever</string>
+    <string name="hours_abbr">%dh</string>
+    <string name="minutes_abbr">%dm</string>
+    <string name="add_wear_time">Ajouter temps de port</string>
+    <string name="subtract_wear_time">Enlever temps de port</string>
     <string name="delete">Supprimer</string>
     <string name="list_empty">Vous n\'avez pas encore de masques, ajoutez-en un à l\'aide du bouton dans la coin inférieur.</string>
     <string name="stop">Stop</string>

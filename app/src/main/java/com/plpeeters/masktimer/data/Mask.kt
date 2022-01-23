@@ -47,6 +47,14 @@ class Mask(
             return wearingForMillis + wornTimeMillis
         }
 
+    private fun updateWornTimeInDb() {
+        val wornTime = wornTimeMillis
+
+        Thread {
+            database.updateWornTime(type, name, wornTime)
+        }.start()
+    }
+
     fun toMaskEntity(): MaskEntity {
         return MaskEntity(type, name)
     }
@@ -71,11 +79,28 @@ class Mask(
         wornTimeMillis += Date().time - wearingSince!!
         wearingSince = null
 
-        val wornTime = wornTimeMillis
+        updateWornTimeInDb()
+    }
 
-        Thread {
-            database.updateWornTime(type, name, wornTime)
-        }.start()
+    fun addWearTime(seconds: Int) {
+        if (isBeingWorn) {
+            throw RuntimeException("Cannot edit wear time for a mask that is being worn")
+        }
+
+        wornTimeMillis += seconds * 1000
+
+        updateWornTimeInDb()
+    }
+
+    fun subtractWearTime(seconds: Int) {
+        if (isBeingWorn) {
+            throw RuntimeException("Cannot edit wear time for a mask that is being worn")
+        }
+
+        wornTimeMillis -= seconds * 1000
+        wornTimeMillis.coerceAtLeast(0)
+
+        updateWornTimeInDb()
     }
 
     fun replace() {
