@@ -1,5 +1,9 @@
 # Changelog
 
+**1.0.1** (2022-01-23 14:05 CET)
+
+* Improved strings
+
 **1.0.0** (2022-01-23 13:07 CET)
 
 * Added context menu option to adjust mask wear time
