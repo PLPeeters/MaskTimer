@@ -1,5 +1,10 @@
 # Changelog
 
+**1.0.0** (2022-01-23 13:07 CET)
+
+* Added context menu option to adjust mask wear time
+* Improved theme
+
 **0.3.3** (2022-01-21 12:47 CET)
 
 * Fixed theme issues
