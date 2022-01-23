@@ -33,9 +33,15 @@ class MaskListAdapter(
         } else {
             val wornTimeSeconds = mask.wornTimeMillis / 1000
 
-            if (wornTimeSeconds >= 3600) {
-                val wornHours = wornTimeSeconds.floorDiv(3600).toInt()
-                val wornMinutes = (wornTimeSeconds % 3600 / 60.0).roundToInt()
+            // Subtracting 30 seconds for the check to handle rounding of 59m30+ to 1h
+            if (wornTimeSeconds >= (3600 - 30)) {
+                var wornHours = wornTimeSeconds.floorDiv(3600).toInt()
+                var wornMinutes = (wornTimeSeconds % 3600 / 60.0).roundToInt()
+
+                if (wornMinutes == 60) {
+                    wornHours++
+                    wornMinutes = 0
+                }
 
                 if (wornMinutes > 0) {
                     binding.wornDuration.text = context.resources.getString(R.string.worn_for_and,
@@ -47,7 +53,7 @@ class MaskListAdapter(
                     binding.wornDuration.text = context.resources.getString(R.string.worn_for, wornHoursString)
                 }
             } else if (wornTimeSeconds >= 60) {
-                val wornMinutes = (mask.wornTimeMillis / (60 * 1000.0)).roundToInt()
+                val wornMinutes = (wornTimeSeconds / 60.0).roundToInt()
 
                 binding.wornDuration.text = context.resources.getString(R.string.worn_for, context.resources.getQuantityString(R.plurals.minutes, wornMinutes, wornMinutes))
             } else if (wornTimeSeconds > 0) {

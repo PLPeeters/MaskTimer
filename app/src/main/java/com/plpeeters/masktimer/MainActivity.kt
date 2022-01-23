@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
 
             menu.add(0, listPosition, 0, R.string.replace)
 
-            val adjustWearTime = menu.add(0, listPosition, 1, R.string.adjust_wear_time)
+            val adjustWearTime = menu.add(0, listPosition, 1, R.string.adjust_wear_time_ellipsis)
             adjustWearTime.isEnabled = !mask.isBeingWorn
 
             menu.add(0, listPosition, 2, R.string.delete)

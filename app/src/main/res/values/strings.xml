@@ -43,6 +43,7 @@
     <string name="replace_your_mask">Time to replace your mask!</string>
     <string name="replace">Replace</string>
     <string name="adjust_wear_time">Adjust wear time</string>
+    <string name="adjust_wear_time_ellipsis">Adjust wear time…</string>
     <string name="add">Add</string>
     <string name="subtract">Subtract</string>
     <string name="hours_abbr">%dh</string>
