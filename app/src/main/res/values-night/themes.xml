@@ -14,5 +14,15 @@
         <!-- Customize your theme here. -->
         <item name="toolbarStyle">@style/Theme.MaskTimer.Toolbar</item>
         <item name="appBarIconColor">@color/black</item>
+        <item name="radioButtonStyle">@style/Theme.MaskTimer.RadioButton</item>
+        <item name="alertDialogTheme">@style/Theme.MaskTimer.AlertDialog.Dark</item>
+    </style>
+
+    <style name="Theme.MaskTimer.AlertDialog.Dark" parent="Theme.MaskTimer.AlertDialog">
+        <item name="colorAccent">@color/primary_color</item>
+    </style>
+
+    <style name="Theme.MaskTimer.AlertDialog.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/primary_color</item>
     </style>
 </resources>

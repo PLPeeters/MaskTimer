@@ -14,9 +14,34 @@
         <!-- Customize your theme here. -->
         <item name="toolbarStyle">@style/Theme.MaskTimer.Toolbar</item>
         <item name="appBarIconColor">@color/black</item>
+        <item name="radioButtonStyle">@style/Theme.MaskTimer.RadioButton</item>
+        <item name="alertDialogTheme">@style/Theme.MaskTimer.AlertDialog</item>
+        <item name="android:alertDialogTheme">@style/Theme.MaskTimer.AlertDialog</item>
     </style>
 
     <style name="Theme.MaskTimer.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
         <item name="color">@color/primary_color</item>
+    </style>
+
+    <style name="Theme.MaskTimer.RadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:textColorSecondary">?attr/colorPrimaryVariant</item>
+    </style>
+
+    <style name="Theme.MaskTimer.AlertDialog" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
+        <item name="colorAccent">@color/primary_dark_color</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Theme.MaskTimer.AlertDialog.Button</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Theme.MaskTimer.AlertDialog.Button.Neutral</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Theme.MaskTimer.AlertDialog.Button</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/Theme.MaskTimer.AlertDialog.Button</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/Theme.MaskTimer.AlertDialog.Button</item>
+        <item name="android:buttonBarNeutralButtonStyle">@style/Theme.MaskTimer.AlertDialog.Button.Neutral</item>
+    </style>
+
+    <style name="Theme.MaskTimer.AlertDialog.Button" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/button_text_color_selector</item>
+    </style>
+
+    <style name="Theme.MaskTimer.AlertDialog.Button.Neutral" parent="Theme.MaskTimer.AlertDialog.Button">
+        <item name="android:layout_marginStart">0dp</item>
     </style>
 </resources>
