@@ -93,6 +93,7 @@ fun NotificationManager.sendMaskTimerExpiredNotification(context: Context) {
         }
 
         setSmallIcon(R.mipmap.ic_launcher_foreground_trimmed)
+        color = context.resources.getColor(R.color.primary_color, context.theme)
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         setContentTitle(context.resources.getString(R.string.replace_your_mask))
 
@@ -162,6 +163,7 @@ fun NotificationManager.createOrUpdateMaskTimerNotification(context: Context, ma
         setOngoing(true)
         setSilent(true)
         setSmallIcon(R.mipmap.ic_launcher_foreground_trimmed)
+        color = context.resources.getColor(R.color.primary_color, context.theme)
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         setOnlyAlertOnce(true)
 
