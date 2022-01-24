@@ -178,7 +178,7 @@ fun NotificationManager.createOrUpdateMaskTimerNotification(context: Context, ma
 
             context.resources.getString(R.string.pause)
         } else {
-            setContentTitle(context.resources.getString(R.string.wearing_your_mask, mask.name, mask.getDisplayType(context)))
+            setContentTitle(context.resources.getString(R.string.paused_wearing_your_mask, mask.name, mask.getDisplayType(context)))
 
             context.resources.getString(R.string.resume)
         }

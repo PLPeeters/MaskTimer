@@ -110,7 +110,7 @@
                         android:backgroundTint="@color/primary_color"
                         app:tint="@color/black"
                         android:src="@drawable/baseline_pause_24dp"
-                        android:contentDescription="Pause" />
+                        android:contentDescription="@string/pause" />
 
                     <Button
                         android:id="@+id/stop_wearing_button"

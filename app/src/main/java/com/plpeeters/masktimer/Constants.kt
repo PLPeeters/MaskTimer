@@ -6,6 +6,7 @@ const val SWAP_MASK_EXTRA = "SWAP_MASK"
 const val REPLACE_EXTRA = "REPLACE"
 const val ACTION_STOP_WEARING = "STOP_WEARING"
 const val ACTION_REPLACE = "REPLACE"
+const val MASK_ALARM_REQUEST_CODE = 0
 
 
 object Preferences {
