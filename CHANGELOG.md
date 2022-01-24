@@ -1,5 +1,9 @@
 # Changelog
 
+**1.1.1** (2022-01-24 18:05 CET)
+
+* Fixed expiry notification not being dismissed when stopping the wear of a mask from the main activity
+
 **1.1.0** (2022-01-24 17:49 CET)
 
 * Added a preference to prevent the dismissal of the mask expiration notification
