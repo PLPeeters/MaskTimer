@@ -1,5 +1,12 @@
 # Changelog
 
+**1.1.0** (2022-01-24 17:49 CET)
+
+* Added a preference to prevent the dismissal of the mask expiration notification
+* Added color to notifications
+* Fixed incorrect notification text when wear is paused
+* Code cleanup
+
 **1.0.1** (2022-01-23 14:05 CET)
 
 * Improved strings
