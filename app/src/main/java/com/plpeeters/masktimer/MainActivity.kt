@@ -279,6 +279,8 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         maskListViewModel.currentMask?.let {
             if (it.isBeingWorn) {
                 alarmManager.cancelMaskAlarm(this)
+                notificationManager.dismissMaskTimerExpiredNotification()
+
                 it.stopWearing()
             }
 
