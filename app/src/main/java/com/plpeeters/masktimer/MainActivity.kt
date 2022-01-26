@@ -9,18 +9,22 @@ import android.view.MenuItem
 import android.app.AlertDialog
 import android.app.NotificationManager
 import android.content.*
-import android.view.ContextMenu
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import android.widget.AdapterView
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.material.snackbar.Snackbar
 import com.plpeeters.masktimer.data.Mask
 import com.plpeeters.masktimer.data.persistence.MaskDao
 import com.plpeeters.masktimer.data.persistence.MaskDatabaseSingleton
 import com.plpeeters.masktimer.data.persistence.MaskTypes
 import com.plpeeters.masktimer.databinding.ActivityMainBinding
+import com.plpeeters.masktimer.databinding.MaskListItemBinding
 import com.plpeeters.masktimer.utils.*
 
 
@@ -45,9 +49,13 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         repeatCount = Animation.INFINITE
     }
     private var baseTimerColor: Int = -1
+    private var actionsShown = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        actionsShown = sharedPreferences.getBoolean(Preferences.ACTIONS_SHOWN, false)
+        actionsShown = false
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -65,7 +73,34 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             onMaskSelected(maskListAdapter.getItem(position))
         }
 
-        registerForContextMenu(binding.maskList)
+        if (!actionsShown) {
+            binding.maskList.setOnHierarchyChangeListener(object: ViewGroup.OnHierarchyChangeListener {
+                override fun onChildViewAdded(parent: View?, child: View?) {
+                    if (maskListViewModel.masks.size == 1 && !actionsShown) {
+                        child?.let {
+                            val firstMaskListItemView = MaskListItemBinding.bind(it)
+
+                            Handler(Looper.getMainLooper()).post {
+                                firstMaskListItemView.swipeContainer.open(true)
+                            }
+
+                            Snackbar.make(binding.root, R.string.swipe_to_reveal_actions, Snackbar.LENGTH_INDEFINITE)
+                                .setAction(R.string.got_it) {
+                                    firstMaskListItemView.swipeContainer.close(true)
+
+                                    actionsShown = true
+
+                                    sharedPreferences.edit {
+                                        putBoolean(Preferences.ACTIONS_SHOWN, true)
+                                    }
+                                }.show()
+                        }
+                    }
+                }
+
+                override fun onChildViewRemoved(parent: View?, child: View?) {}
+            })
+        }
 
         binding.pauseWearingButton.setOnClickListener {
             onPauseCurrentMask()
@@ -151,72 +186,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         }
     }
 
-    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
-        super.onCreateContextMenu(menu, v, menuInfo)
-
-        if (v.id == binding.maskList.id) {
-            val listPosition = (menuInfo as AdapterView.AdapterContextMenuInfo).position
-            val mask = maskListAdapter.getItem(listPosition)
-
-            menu.add(0, listPosition, 0, R.string.replace)
-
-            val adjustWearTime = menu.add(0, listPosition, 1, R.string.adjust_wear_time_ellipsis)
-            adjustWearTime.isEnabled = !mask.isBeingWorn
-
-            menu.add(0, listPosition, 2, R.string.delete)
-        }
-    }
-
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-        val listPosition = (item.menuInfo as AdapterView.AdapterContextMenuInfo).position
-        val mask = maskListAdapter.getItem(listPosition)
-
-        when (item.order) {
-            0 -> {  // Replace
-                if (maskListViewModel.currentMask?.equals(mask) == true) {
-                    onReplaceCurrentMask()
-                } else {
-                    mask.replace()
-                    maskListAdapter.notifyDataSetChanged()
-                }
-
-                return true
-            }
-            1 -> {  // Edit wear time
-                AlertDialog.Builder(this).durationDialog(mask) { durationSeconds, adding ->
-                    if (adding) {
-                        mask.addWearTime(durationSeconds)
-                    } else {
-                        mask.subtractWearTime(durationSeconds)
-                    }
-
-                    maskListAdapter.notifyDataSetChanged()
-                }.show()
-
-                return true
-            }
-            2 -> {  // Delete
-                if (maskListViewModel.currentMask?.equals(mask) == true) {
-                    onStopWearingMask()
-                }
-
-                maskListViewModel.masks.remove(mask)
-                maskListAdapter.notifyDataSetChanged()
-
-                updateUi()
-
-                Thread {
-                    maskDatabaseDao.delete(mask.toMaskEntity())
-                }.start()
-
-                return true
-            }
-        }
-
-        return super.onContextItemSelected(item)
-    }
-
-    private fun updateUi() {
+    fun updateUi() {
         maskListViewModel.currentMask.let { currentMask ->
             if (currentMask?.isBeingWorn == true || currentMask?.isPaused == true) {
                 binding.maskTimer.base = SystemClock.elapsedRealtime() + currentMask.getRemainingLifespanMillis(this)

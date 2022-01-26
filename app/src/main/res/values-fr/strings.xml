@@ -39,7 +39,6 @@
     <string name="replace_your_mask">Remplacez votre masque!</string>
     <string name="replace">Remplacer</string>
     <string name="adjust_wear_time">Ajuster le temps de port</string>
-    <string name="adjust_wear_time_ellipsis">Ajuster le temps de port…</string>
     <string name="add">Ajouter</string>
     <string name="subtract">Enlever</string>
     <string name="hours_abbr">%dh</string>
@@ -47,7 +46,9 @@
     <string name="add_wear_time">Ajouter temps de port</string>
     <string name="subtract_wear_time">Enlever temps de port</string>
     <string name="delete">Supprimer</string>
-    <string name="list_empty">Vous n\'avez pas encore de masques, ajoutez-en un à l\'aide du bouton dans le coin inférieur.</string>
+    <string name="list_empty">Vous n\'avez pas encore de masques, ajoutez-en un à l\'aide du bouton dans le coin inférieur</string>
+    <string name="swipe_to_reveal_actions">Faites glisser un masque vers la gauche pour afficher les actions</string>
+    <string name="got_it">Compris</string>
     <string name="stop">Stop</string>
     <string name="pause">Pause</string>
     <string name="resume">Reprendre</string>

@@ -1,14 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipe_container"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    app:clickToClose="true"
+    app:show_mode="pull_out"
+    app:drag_edge="right">
+
+    <LinearLayout
+        android:id="@+id/actions"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <ImageButton
+            android:id="@+id/replace_button"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/holo_orange_dark"
+            android:src="@drawable/baseline_restart_alt_24dp"
+            android:contentDescription="@string/replace" />
+
+        <ImageButton
+            android:id="@+id/adjust_wear_time_button"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/holo_blue_dark"
+            android:src="@drawable/baseline_mode_edit_24dp"
+            android:contentDescription="@string/adjust_wear_time" />
+
+        <ImageButton
+            android:id="@+id/delete_button"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/holo_red_dark"
+            android:src="@drawable/baseline_delete_outline_24dp"
+            android:contentDescription="@string/delete" />
+
+    </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingHorizontal="7dp"
-        android:paddingVertical="6dp">
+        android:paddingVertical="6dp"
+        android:foreground="?android:attr/selectableItemBackground">
 
         <TextView
             android:id="@+id/mask_name_and_type"
@@ -37,4 +73,4 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</LinearLayout>
+</com.daimajia.swipe.SwipeLayout>

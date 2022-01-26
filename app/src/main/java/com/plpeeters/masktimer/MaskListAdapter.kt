@@ -1,23 +1,39 @@
 package com.plpeeters.masktimer
 
+import android.app.AlarmManager
+import android.app.AlertDialog
+import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.annotation.LayoutRes
+import com.daimajia.swipe.adapters.ArraySwipeAdapter
 import com.plpeeters.masktimer.data.Mask
 import com.plpeeters.masktimer.databinding.MaskListItemBinding
+import com.plpeeters.masktimer.utils.cancelMaskAlarm
+import com.plpeeters.masktimer.utils.dismissMaskTimerExpiredNotification
+import com.plpeeters.masktimer.utils.durationDialog
+import com.plpeeters.masktimer.utils.setAlarmForMask
 import kotlin.math.roundToInt
 
 
 class MaskListAdapter(
     context: Context, @LayoutRes
     private val layoutResource: Int,
-    private var masks: List<Mask>
-): ArrayAdapter<Mask>(context, layoutResource, masks) {
+    private var masks: ArrayList<Mask>
+): ArraySwipeAdapter<Mask>(context, layoutResource, masks) {
     private var baseTextColor: Int = -1
+    private val notificationManager: NotificationManager by lazy { context.getSystemService(NotificationManager::class.java) }
+    private val alarmManager: AlarmManager by lazy { context.getSystemService(AlarmManager::class.java)}
+
+    private fun updateUi() {
+        if (context is MainActivity) {
+            (context as MainActivity).updateUi()
+        }
+    }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val mask = getItem(position)
@@ -25,6 +41,64 @@ class MaskListAdapter(
 
         val binding = MaskListItemBinding.bind(view)
         val maskType = mask.getDisplayType(context)
+
+        binding.adjustWearTimeButton.setOnClickListener {
+            AlertDialog.Builder(context).durationDialog(mask) { durationSeconds, adding ->
+                if (adding) {
+                    mask.addWearTime(durationSeconds)
+                } else {
+                    mask.subtractWearTime(durationSeconds)
+                }
+
+                if (mask.isBeingWorn) {
+                    if (!mask.isExpired(context)) {
+                        notificationManager.dismissMaskTimerExpiredNotification()
+                    }
+
+                    alarmManager.setAlarmForMask(context, mask)
+                }
+
+                updateUi()
+                notifyDataSetChanged()
+            }.show()
+        }
+        binding.adjustWearTimeButton.setOnLongClickListener {
+            Toast.makeText(context, R.string.adjust_wear_time, Toast.LENGTH_SHORT).show()
+
+            true
+        }
+        binding.replaceButton.setOnClickListener {
+            notificationManager.dismissMaskTimerExpiredNotification()
+            mask.replace()
+            alarmManager.setAlarmForMask(context, mask)
+
+            updateUi()
+            notifyDataSetChanged()
+        }
+        binding.replaceButton.setOnLongClickListener {
+            Toast.makeText(context, R.string.replace, Toast.LENGTH_SHORT).show()
+
+            true
+        }
+        binding.deleteButton.setOnClickListener {
+            mask.isBeingWorn.let { wasBeingWorn ->
+                mask.delete()
+                masks.remove(mask)
+
+                if (wasBeingWorn) {
+                    notificationManager.dismissMaskTimerExpiredNotification()
+                    alarmManager.cancelMaskAlarm(context)
+                }
+            }
+
+            updateUi()
+            notifyDataSetChanged()
+        }
+        binding.deleteButton.setOnLongClickListener {
+            Toast.makeText(context, R.string.delete, Toast.LENGTH_SHORT).show()
+
+            true
+        }
 
         binding.maskNameAndType.text = context.resources.getString(R.string.mask_name_and_type, mask.name, maskType)
 
@@ -81,4 +155,8 @@ class MaskListAdapter(
     override fun getItem(position: Int) = masks[position]
 
     override fun getCount() = masks.size
+
+    override fun getSwipeLayoutResourceId(position: Int): Int {
+        return masks[position].hashCode()
+    }
 }

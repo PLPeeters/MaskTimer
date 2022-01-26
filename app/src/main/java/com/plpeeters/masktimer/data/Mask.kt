@@ -48,11 +48,11 @@ class Mask(
         }
 
     private fun updateWornTimeInDb() {
-        val wornTime = wornTimeMillis
-
-        Thread {
-            database.updateWornTime(type, name, wornTime)
-        }.start()
+        wornTimeMillis.let {
+            Thread {
+                database.updateWornTime(type, name, it)
+            }.start()
+        }
     }
 
     fun toMaskEntity(): MaskEntity {
@@ -65,9 +65,11 @@ class Mask(
         wearingSince = now
         isPaused = false
 
-        Thread {
-            database.updateWearingSince(type, name, now)
-        }.start()
+        wearingSince.let {
+            Thread {
+                database.updateWearingSince(type, name, it)
+            }.start()
+        }
     }
 
     fun pauseWearing() {
@@ -83,33 +85,28 @@ class Mask(
     }
 
     fun addWearTime(seconds: Int) {
-        if (isBeingWorn) {
-            throw RuntimeException("Cannot edit wear time for a mask that is being worn")
-        }
-
         wornTimeMillis += seconds * 1000
-
         updateWornTimeInDb()
     }
 
     fun subtractWearTime(seconds: Int) {
-        if (isBeingWorn) {
-            throw RuntimeException("Cannot edit wear time for a mask that is being worn")
-        }
-
-        wornTimeMillis -= seconds * 1000
-        wornTimeMillis.coerceAtLeast(0)
-
+        wornTimeMillis = (wornTimeMillis - seconds * 1000).coerceAtLeast(0)
         updateWornTimeInDb()
     }
 
     fun replace() {
-        wornTimeMillis = 0L
-        wearingSince = null
+        isBeingWorn.let { wasBeingWorn ->
+            wornTimeMillis = 0L
+            wearingSince = null
 
-        Thread {
-            database.replace(type, name)
-        }.start()
+            Thread {
+                database.replace(type, name)
+            }.start()
+
+            if (wasBeingWorn || isPaused) {
+                startWearing()
+            }
+        }
     }
 
     fun getRemainingLifespanMillis(context: Context): Long {
@@ -142,6 +139,17 @@ class Mask(
 
     fun getDisplayType(context: Context): String {
         return context.resources.getString(context.resources.getIdentifier("mask_type_${type}", "string", context.packageName))
+    }
+
+    fun delete() {
+        wornTimeMillis = -1
+        wearingSince = null
+        isPaused = false
+        isPrevious = false
+
+        Thread {
+            database.delete(toMaskEntity())
+        }.start()
     }
 
     override fun toString(): String {

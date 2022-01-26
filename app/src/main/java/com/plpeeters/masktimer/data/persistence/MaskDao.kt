@@ -21,7 +21,7 @@ interface MaskDao {
     fun updateWornTime(type: String, name: String, wornTimeMillis: Long)
 
     @Query("UPDATE masks SET wearingSince = :wearingSince WHERE type = :type AND name = :name")
-    fun updateWearingSince(type: String, name: String, wearingSince: Long)
+    fun updateWearingSince(type: String, name: String, wearingSince: Long?)
 
     @Delete
     fun delete(maskEntity: MaskEntity)

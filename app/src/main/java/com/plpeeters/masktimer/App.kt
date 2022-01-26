@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.NotificationManager
 import androidx.preference.PreferenceManager
 import com.plpeeters.masktimer.data.Data
+import com.plpeeters.masktimer.data.persistence.MaskDatabaseSingleton
 import com.plpeeters.masktimer.utils.createNotificationChannels
 
 
@@ -27,7 +28,8 @@ class App : Application() {
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannels(this)
 
-        // Load masks from the database
+        // Initialise the database and load masks
+        MaskDatabaseSingleton(applicationContext)
         loadData()
     }
 }
