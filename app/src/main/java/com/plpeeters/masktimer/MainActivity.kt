@@ -55,7 +55,6 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         super.onCreate(savedInstanceState)
 
         actionsShown = sharedPreferences.getBoolean(Preferences.ACTIONS_SHOWN, false)
-        actionsShown = false
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
