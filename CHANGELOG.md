@@ -1,5 +1,9 @@
 # Changelog
 
+**1.2.1** (2022-01-26 18:35 CET)
+
+* Fixed debug variable making it to the release
+
 **1.2.0** (2022-01-26 18:26 CET)
 
 * Moved mask actions to a swipe menu
