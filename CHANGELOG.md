@@ -1,5 +1,10 @@
 # Changelog
 
+**1.2.0** (2022-01-26 18:26 CET)
+
+* Moved mask actions to a swipe menu
+* Added a hint for the swipe menu when the first mask is added
+
 **1.1.1** (2022-01-24 18:05 CET)
 
 * Fixed expiry notification not being dismissed when stopping the wear of a mask from the main activity
