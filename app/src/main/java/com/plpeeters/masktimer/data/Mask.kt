@@ -1,6 +1,8 @@
 package com.plpeeters.masktimer.data
 
 import android.content.Context
+import android.os.Parcel
+import android.os.Parcelable
 import com.plpeeters.masktimer.Preferences
 import com.plpeeters.masktimer.data.persistence.MaskDatabaseSingleton
 import com.plpeeters.masktimer.data.persistence.MaskEntity
@@ -14,8 +16,20 @@ import java.util.*
 class Mask(
     val type: String,
     val name: String
-) {
+): Parcelable {
     companion object {
+        @JvmField
+        @Suppress("unused")
+        val CREATOR: Parcelable.Creator<Mask?> = object : Parcelable.Creator<Mask?> {
+            override fun createFromParcel(parcel: Parcel): Mask {
+                return Mask(parcel)
+            }
+
+            override fun newArray(size: Int): Array<Mask?> {
+                return arrayOfNulls(size)
+            }
+        }
+
         fun fromMaskEntity(maskEntity: MaskEntity): Mask {
             return Mask(maskEntity.type, maskEntity.name).apply {
                 wearingSince = maskEntity.wearingSince
@@ -46,6 +60,16 @@ class Mask(
 
             return wearingForMillis + wornTimeMillis
         }
+
+    private constructor(parcel: Parcel): this(
+        parcel.readString()!!,
+        parcel.readString()!!
+    ) {
+        wornTimeMillis = parcel.readLong()
+        wearingSince = parcel.readValue(Long::class.java.classLoader) as? Long
+        isPaused = parcel.readByte() != 0.toByte()
+        isPrevious = parcel.readByte() != 0.toByte()
+    }
 
     private fun updateWornTimeInDb() {
         wornTimeMillis.let {
@@ -174,5 +198,18 @@ class Mask(
         result = 31 * result + name.hashCode()
 
         return result
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(type)
+        parcel.writeString(name)
+        parcel.writeLong(wornTimeMillis)
+        parcel.writeValue(wearingSince)
+        parcel.writeByte(if (isPaused) 1 else 0)
+        parcel.writeByte(if (isPrevious) 1 else 0)
+    }
+
+    override fun describeContents(): Int {
+        return 0
     }
 }

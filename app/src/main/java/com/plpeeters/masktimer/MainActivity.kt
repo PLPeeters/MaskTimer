@@ -38,7 +38,15 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     private val localBroadcastManager: LocalBroadcastManager by lazy { LocalBroadcastManager.getInstance(this) }
     private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            updateUi()
+            if (intent.action == ACTION_REPLACE || intent.action == ACTION_STOP_WEARING) {
+                updateUi()
+            } else if (intent.action == ACTION_DELETE) {
+                val mask = intent.extras?.getParcelable<Mask>(MASK_EXTRA)
+
+                if (maskListViewModel.previousMask == mask) {
+                    maskListViewModel.previousMask = null
+                }
+            }
         }
     }
     private val sharedPreferences: SharedPreferences by lazy { getSharedPreferences() }
@@ -304,6 +312,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
         localBroadcastManager.registerReceiver(broadcastReceiver, IntentFilter().apply {
             addAction(ACTION_REPLACE)
             addAction(ACTION_STOP_WEARING)
+            addAction(ACTION_DELETE)
         })
 
         notificationManager.dismissMaskTimerNotification()

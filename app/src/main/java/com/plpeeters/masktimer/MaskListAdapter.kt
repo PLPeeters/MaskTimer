@@ -4,12 +4,14 @@ import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.LayoutRes
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.daimajia.swipe.adapters.ArraySwipeAdapter
 import com.plpeeters.masktimer.data.Mask
 import com.plpeeters.masktimer.databinding.MaskListItemBinding
@@ -28,6 +30,7 @@ class MaskListAdapter(
     private var baseTextColor: Int = -1
     private val notificationManager: NotificationManager by lazy { context.getSystemService(NotificationManager::class.java) }
     private val alarmManager: AlarmManager by lazy { context.getSystemService(AlarmManager::class.java)}
+    private val localBroadcastManager by lazy { LocalBroadcastManager.getInstance(context) }
 
     private fun updateUi() {
         if (context is MainActivity) {
@@ -60,6 +63,7 @@ class MaskListAdapter(
 
                 updateUi()
                 notifyDataSetChanged()
+                binding.swipeContainer.close(true)
             }.show()
         }
         binding.adjustWearTimeButton.setOnLongClickListener {
@@ -74,6 +78,7 @@ class MaskListAdapter(
 
             updateUi()
             notifyDataSetChanged()
+            binding.swipeContainer.close(true)
         }
         binding.replaceButton.setOnLongClickListener {
             Toast.makeText(context, R.string.replace, Toast.LENGTH_SHORT).show()
@@ -89,8 +94,13 @@ class MaskListAdapter(
                     notificationManager.dismissMaskTimerExpiredNotification()
                     alarmManager.cancelMaskAlarm(context)
                 }
+
+                localBroadcastManager.sendBroadcast(Intent(ACTION_DELETE).apply {
+                    putExtra(MASK_EXTRA, mask)
+                })
             }
 
+            binding.swipeContainer.close(true)
             updateUi()
             notifyDataSetChanged()
         }
