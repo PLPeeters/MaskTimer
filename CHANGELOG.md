@@ -1,5 +1,10 @@
 # Changelog
 
+**1.2.2** (2022-01-27 09:38 CET)
+
+* Fixed previous mask not being cleared when deleting it
+* Improved action animations
+
 **1.2.1** (2022-01-26 18:35 CET)
 
 * Fixed debug variable making it to the release
