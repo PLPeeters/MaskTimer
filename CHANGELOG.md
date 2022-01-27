@@ -1,5 +1,9 @@
 # Changelog
 
+**1.2.3** (2022-01-27 18:07 CET)
+
+* Restore notifications after the app is updated
+
 **1.2.2** (2022-01-27 09:38 CET)
 
 * Fixed previous mask not being cleared when deleting it
