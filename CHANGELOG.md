@@ -1,5 +1,13 @@
 # Changelog
 
+**1.2.4** (2022-01-30 12:13 CET)
+
+* Saved isPrevious field for masks to the database
+* Reset mask alarm on app start
+* Check for the exact alarms permission and request it if necessary on Android S and above
+* Ensure alarms trigger even when the phone is idle
+* Fixed mask addition dialog using an internal class
+
 **1.2.3** (2022-01-27 18:07 CET)
 
 * Restore notifications after the app is updated
