@@ -19,6 +19,7 @@ import kotlin.math.roundToInt
 
 typealias MaskDataCallback = (type: String, name: String) -> Unit
 typealias DurationCallback = (durationSeconds: Int, adding: Boolean) -> Unit
+typealias ResponsePositivityCallback = (responseWasPositive: Boolean?) -> Unit
 
 
 fun AlertDialog.Builder.addMaskDialog(
@@ -173,4 +174,38 @@ fun AlertDialog.Builder.durationDialog(mask: Mask, callback: DurationCallback): 
     })
 
     return dialog
+}
+
+fun AlertDialog.Builder.simpleDialog(
+    title: Int?,
+    message: Int,
+    positiveButtonTextId: Int,
+    negativeButtonTextId: Int? = null,
+    callback: ResponsePositivityCallback? = null
+): AlertDialog {
+    setMessage(message)
+        .setPositiveButton(positiveButtonTextId) { _, _ ->
+            if (callback != null) {
+                callback(true)
+            }
+        }
+        .setOnCancelListener {
+            if (callback != null) {
+                callback(null)
+            }
+        }
+
+    if (title != null) {
+        setTitle(title)
+    }
+
+    if (negativeButtonTextId != null) {
+        setNegativeButton(negativeButtonTextId) { _, _ ->
+            if (callback != null) {
+                callback(false)
+            }
+        }
+    }
+
+    return create()
 }

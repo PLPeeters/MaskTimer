@@ -68,4 +68,8 @@
     <string name="prevent_expiration_notification_dismissal">Prevent dismissal of mask expiration notification</string>
     <string name="prevent_expiration_notification_dismissal_on">Mask expiration notification cannot be dismissed</string>
     <string name="prevent_expiration_notification_dismissal_off">Mask expiration notification can be dismissed</string>
+
+    <string name="alarm_permission_request">To notify you when your mask expires, you need to allow Mask Timer to set alarms.</string>
+    <string name="will_not_be_able_to_notify">Mask Timer will not be able to notify you when your mask expires.</string>
+    <string name="ok">OK</string>
 </resources>

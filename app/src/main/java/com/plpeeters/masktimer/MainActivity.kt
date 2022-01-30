@@ -1,16 +1,13 @@
 package com.plpeeters.masktimer
 
 import android.app.AlarmManager
-import android.os.Bundle
-import android.os.SystemClock
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.app.AlertDialog
 import android.app.NotificationManager
 import android.content.*
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
@@ -139,6 +136,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     override fun onResume() {
         super.onResume()
 
+        alarmManager.checkAndRequestExactAlarmsPermissionIfNecessary(this)
         updateUi()
     }
 

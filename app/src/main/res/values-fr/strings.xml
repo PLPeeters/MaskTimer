@@ -64,4 +64,8 @@
     <string name="prevent_expiration_notification_dismissal">Empêcher l\'enlèvement de la notification d\'expiration du masque</string>
     <string name="prevent_expiration_notification_dismissal_on">La notification d\'expiration du masque ne peut pas être enlevée</string>
     <string name="prevent_expiration_notification_dismissal_off">La notification d\'expiration du masque peut être enlevée</string>
+
+    <string name="alarm_permission_request">Afin de vous notifier de l\'expiration de votre masque, vous devez autoriser Mask Timer à définir des alarmes.</string>
+    <string name="will_not_be_able_to_notify">Mask Timer ne sera pas en mesure de vous notifier quand votre masque expire.</string>
+    <string name="ok">OK</string>
 </resources>

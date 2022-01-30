@@ -1,15 +1,20 @@
 package com.plpeeters.masktimer.utils
 
 import android.app.AlarmManager
+import android.app.AlertDialog
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
+import android.os.Build
 import android.os.SystemClock
+import android.provider.Settings
 import android.widget.EditText
 import androidx.preference.PreferenceManager
 import com.plpeeters.masktimer.AlarmReceiver
 import com.plpeeters.masktimer.MASK_ALARM_REQUEST_CODE
+import com.plpeeters.masktimer.R
 import com.plpeeters.masktimer.data.Mask
 import java.text.Normalizer
 
@@ -46,14 +51,28 @@ private fun Context.getMaskAlarmPendingIntent(): PendingIntent {
     }
 }
 
+fun AlarmManager.checkAndRequestExactAlarmsPermissionIfNecessary(context: Context): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !canScheduleExactAlarms()) {
+        AlertDialog.Builder(context).simpleDialog(null, R.string.alarm_permission_request, R.string.ok) {
+            context.startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:${context.packageName}")))
+        }.show()
+
+        return false
+    }
+
+    return true
+}
+
 fun AlarmManager.setAlarmForMask(context: Context, mask: Mask) {
     val pendingIntent = context.getMaskAlarmPendingIntent()
 
-    set(
-        AlarmManager.ELAPSED_REALTIME_WAKEUP,
-        SystemClock.elapsedRealtime() + mask.getRemainingLifespanMillis(context),
-        pendingIntent
-    )
+    if (checkAndRequestExactAlarmsPermissionIfNecessary(context)) {
+        setExactAndAllowWhileIdle(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            SystemClock.elapsedRealtime() + mask.getRemainingLifespanMillis(context),
+            pendingIntent
+        )
+    }
 }
 
 fun AlarmManager.cancelMaskAlarm(context: Context) {

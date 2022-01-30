@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.widget.Toast
 import com.plpeeters.masktimer.data.Data
 import com.plpeeters.masktimer.utils.createOrUpdateMaskTimerNotification
 import com.plpeeters.masktimer.utils.setAlarmForMask
@@ -28,6 +30,26 @@ class SystemBroadcastReceiver : BroadcastReceiver() {
                     }
                 }
             }.start()
+        } else if (intent.action == AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED) {
+            val alarmManager = context.getSystemService(AlarmManager::class.java)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                Thread {
+                    Data.load(context)
+
+                    for (mask in Data.MASKS) {
+                        if (mask.isBeingWorn) {
+                            if (alarmManager.canScheduleExactAlarms()) {
+                                alarmManager.setAlarmForMask(context, mask)
+                            } else {
+                                Toast.makeText(context, R.string.will_not_be_able_to_notify, Toast.LENGTH_LONG).show()
+                            }
+
+                            break
+                        }
+                    }
+                }.start()
+            }
         }
     }
 }
