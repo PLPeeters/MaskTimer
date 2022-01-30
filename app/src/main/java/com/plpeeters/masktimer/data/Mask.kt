@@ -43,6 +43,11 @@ class Mask(
     var wearingSince: Long? = null
     var isPaused = false
     var isPrevious = false
+        set(value) {
+            field = value
+
+            updatePreviousStateInDb()
+        }
 
     val isBeingWorn: Boolean
         get() {
@@ -69,6 +74,14 @@ class Mask(
         wearingSince = parcel.readValue(Long::class.java.classLoader) as? Long
         isPaused = parcel.readByte() != 0.toByte()
         isPrevious = parcel.readByte() != 0.toByte()
+    }
+
+    private fun updatePreviousStateInDb() {
+        isPrevious.let {
+            Thread {
+                database.setPrevious(type, name, it)
+            }.start()
+        }
     }
 
     private fun updateWornTimeInDb() {

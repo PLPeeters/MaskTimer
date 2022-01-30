@@ -18,7 +18,7 @@ class NotificationActionBroadcastReceiver: BroadcastReceiver() {
         var previousMask: Mask? = null
 
         for (mask in Data.MASKS) {
-            if (mask.isBeingWorn || (considerPausedCurrent and mask.isPaused)) {
+            if (mask.isBeingWorn || (considerPausedCurrent && mask.isPaused)) {
                 currentMask = mask
 
                 if (previousMask != null) {

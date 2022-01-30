@@ -2,10 +2,14 @@ package com.plpeeters.masktimer.data.persistence
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
 
 
 object MaskDatabaseSingleton {
     private var instance: MaskDatabase? = null
+    private val MIGRATION_1_2 = Migration(1, 2) {
+        it.execSQL("ALTER TABLE masks ADD COLUMN isPrevious INTEGER NOT NULL DEFAULT 0")
+    }
 
     @Synchronized
     operator fun invoke(context: Context? = null): MaskDatabase {
@@ -18,7 +22,7 @@ object MaskDatabaseSingleton {
                 context.applicationContext,
                 MaskDatabase::class.java,
                 "masks"
-            ).build()
+            ).addMigrations(MIGRATION_1_2).build()
         }
 
         return instance as MaskDatabase

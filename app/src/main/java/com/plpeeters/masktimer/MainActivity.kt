@@ -77,6 +77,10 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
             onMaskSelected(maskListAdapter.getItem(position))
         }
 
+        maskListViewModel.currentMask?.let {
+            alarmManager.setAlarmForMask(this, it)
+        }
+
         if (!actionsShown) {
             binding.maskList.setOnHierarchyChangeListener(object: ViewGroup.OnHierarchyChangeListener {
                 override fun onChildViewAdded(parent: View?, child: View?) {

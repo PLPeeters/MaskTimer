@@ -8,5 +8,6 @@ data class MaskEntity(
     val type: String,
     val name: String,
     val wornTimeMillis: Long = 0L,
-    val wearingSince: Long? = null
+    val wearingSince: Long? = null,
+    val isPrevious: Boolean = false
 )
