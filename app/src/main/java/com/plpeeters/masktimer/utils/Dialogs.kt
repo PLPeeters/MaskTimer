@@ -2,14 +2,13 @@ package com.plpeeters.masktimer.utils
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.EditText
-import com.google.android.material.internal.TextWatcherAdapter
+import androidx.core.widget.addTextChangedListener
 import com.plpeeters.masktimer.R
 import com.plpeeters.masktimer.data.Mask
 import com.plpeeters.masktimer.databinding.DialogAddMaskBinding
@@ -67,14 +66,10 @@ fun AlertDialog.Builder.addMaskDialog(
         }
     }
 
-    binding.nameField.addTextChangedListener(object : TextWatcherAdapter() {
-        private val addMaskButton by lazy { dialog.getButton(AlertDialog.BUTTON_POSITIVE) }
-
-        override fun afterTextChanged(s: Editable) {
-            checkNameIsNotTakenForType()
-            setPositiveButtonState(addMaskButton)
-        }
-    })
+    binding.nameField.addTextChangedListener {
+        checkNameIsNotTakenForType()
+        setPositiveButtonState(dialog.getButton(AlertDialog.BUTTON_POSITIVE))
+    }
 
     binding.typeField.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
         private val addMaskButton by lazy { dialog.getButton(AlertDialog.BUTTON_POSITIVE) }
