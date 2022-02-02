@@ -1,5 +1,9 @@
 # Changelog
 
+**1.2.5** (2022-02-02 14:18 CET)
+
+* Fixed mask wear time adjustment causing masks to be marked as not being worn in the database
+
 **1.2.4** (2022-01-30 12:13 CET)
 
 * Saved isPrevious field for masks to the database
