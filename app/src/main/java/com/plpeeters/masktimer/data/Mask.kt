@@ -84,10 +84,14 @@ class Mask(
         }
     }
 
-    private fun updateWornTimeInDb() {
+    private fun updateWornTimeInDb(notWearingAnymore: Boolean = false) {
         wornTimeMillis.let {
             Thread {
                 database.updateWornTime(type, name, it)
+
+                if (notWearingAnymore) {
+                    database.updateWearingSince(type, name, null)
+                }
             }.start()
         }
     }
@@ -118,7 +122,7 @@ class Mask(
         wornTimeMillis += Date().time - wearingSince!!
         wearingSince = null
 
-        updateWornTimeInDb()
+        updateWornTimeInDb(true)
     }
 
     fun addWearTime(seconds: Int) {

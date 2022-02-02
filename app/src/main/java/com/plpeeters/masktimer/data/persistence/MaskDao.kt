@@ -17,7 +17,7 @@ interface MaskDao {
     @Query("UPDATE masks SET wornTimeMillis = 0, wearingSince = NULL WHERE type = :type AND name = :name")
     fun replace(type: String, name: String)
 
-    @Query("UPDATE masks SET wornTimeMillis = :wornTimeMillis, wearingSince = NULL WHERE type = :type AND name = :name")
+    @Query("UPDATE masks SET wornTimeMillis = :wornTimeMillis WHERE type = :type AND name = :name")
     fun updateWornTime(type: String, name: String, wornTimeMillis: Long)
 
     @Query("UPDATE masks SET wearingSince = :wearingSince WHERE type = :type AND name = :name")
