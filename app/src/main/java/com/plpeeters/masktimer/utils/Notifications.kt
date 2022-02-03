@@ -84,8 +84,9 @@ fun NotificationManagerCompat.sendMaskTimerExpiredNotification(context: Context)
         priority = NotificationCompat.PRIORITY_MAX
         setCategory(NotificationCompat.CATEGORY_ALARM)
         setContentIntent(pendingIntent)
-        setAutoCancel(true)
+        setAutoCancel(false)
         setLocalOnly(false)
+        setOnlyAlertOnce(true)
 
         if (context.getSharedPreferences().getBoolean(Preferences.PREVENT_EXPIRATION_NOTIFICATION_DISMISSAL, false)) {
             setOngoing(true)
