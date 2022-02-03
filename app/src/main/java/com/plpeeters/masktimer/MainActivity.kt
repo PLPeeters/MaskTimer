@@ -264,6 +264,8 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
                 it.stopWearing()
             }
 
+            it.isPaused = false
+
             maskListViewModel.currentMask = null
 
             maskListViewModel.previousMask?.isPrevious = false

@@ -37,7 +37,7 @@ class NotificationActionBroadcastReceiver: BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        context?.let {
+        if (context != null) {
             val notificationManager = NotificationManagerCompat.from(context)
             val localBroadcastManager = LocalBroadcastManager.getInstance(context)
             val alarmManager = context.getSystemService(AlarmManager::class.java)
@@ -47,15 +47,21 @@ class NotificationActionBroadcastReceiver: BroadcastReceiver() {
                     if (mask.isBeingWorn) {
                         mask.stopWearing()
 
-                        notificationManager.dismissMaskTimerExpiredNotification()
-                        notificationManager.dismissMaskTimerNotification()
-                        alarmManager.cancelMaskAlarm(context)
 
-                        localBroadcastManager.sendBroadcast(Intent(ACTION_STOP_WEARING))
+
+                        break
+                    } else if (mask.isPaused) {
+                        mask.isPaused = false
 
                         break
                     }
                 }
+
+                notificationManager.dismissMaskTimerExpiredNotification()
+                notificationManager.dismissMaskTimerNotification()
+                alarmManager.cancelMaskAlarm(context)
+
+                localBroadcastManager.sendBroadcast(Intent(ACTION_STOP_WEARING))
             } else if (intent?.getBooleanExtra(PAUSE_OR_RESUME_WEARING_EXTRA, false) == true) {
                 val (currentMask, previousMask) = getCurrentAndPreviousMask(true)
 
@@ -72,14 +78,13 @@ class NotificationActionBroadcastReceiver: BroadcastReceiver() {
                 }
             } else if (intent?.getBooleanExtra(REPLACE_EXTRA, false) == true) {
                 for (mask in Data.MASKS) {
-                    if (mask.isBeingWorn) {
+                    if (mask.isBeingWorn || mask.isPaused) {
                         mask.replace()
-                        mask.startWearing()
                         notificationManager.dismissMaskTimerExpiredNotification()
                         notificationManager.createOrUpdateMaskTimerNotification(context, mask)
                         alarmManager.setAlarmForMask(context, mask)
 
-                        Toast.makeText(it, R.string.mask_replaced, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.mask_replaced, Toast.LENGTH_SHORT).show()
 
                         localBroadcastManager.sendBroadcast(Intent(ACTION_REPLACE))
 
