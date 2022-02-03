@@ -6,16 +6,16 @@
         android:defaultValue="4"
         android:entries="@array/mask_expiration_hours_entries"
         android:entryValues="@array/mask_expiration_hours_values"
-        android:key="ffp_mask_expiration_hours"
-        android:title="@string/ffp_mask_expiration_hours"
+        android:key="surgical_mask_expiration_hours"
+        android:title="@string/surgical_mask_expiration_hours"
         app:useSimpleSummaryProvider="true" />
 
     <ListPreference
         android:defaultValue="4"
         android:entries="@array/mask_expiration_hours_entries"
         android:entryValues="@array/mask_expiration_hours_values"
-        android:key="surgical_mask_expiration_hours"
-        android:title="@string/surgical_mask_expiration_hours"
+        android:key="ffp_mask_expiration_hours"
+        android:title="@string/ffp_mask_expiration_hours"
         app:useSimpleSummaryProvider="true" />
 
     <SwitchPreference
