@@ -1,5 +1,13 @@
 # Changelog
 
+**1.2.6** (2022-02-03 09:31 CET)
+
+* Fixed masks still being marked as paused when the user stops wearing a paused mask
+* Fixed stop/replace notification actions not working on paused masks
+* Mask expiry notifications no longer dismiss on tap
+* Swapped surgical and FFP mask expiration preferences
+* Switched to NotificationManagerCompat
+
 **1.2.5** (2022-02-02 14:18 CET)
 
 * Fixed mask wear time adjustment causing masks to be marked as not being worn in the database
