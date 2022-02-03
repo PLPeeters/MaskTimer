@@ -1,11 +1,11 @@
 package com.plpeeters.masktimer
 
 import android.app.AlarmManager
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import androidx.core.app.NotificationManagerCompat
 import com.plpeeters.masktimer.data.Data
 import com.plpeeters.masktimer.data.Mask
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -38,7 +38,7 @@ class NotificationActionBroadcastReceiver: BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         context?.let {
-            val notificationManager = context.getSystemService(NotificationManager::class.java)
+            val notificationManager = NotificationManagerCompat.from(context)
             val localBroadcastManager = LocalBroadcastManager.getInstance(context)
             val alarmManager = context.getSystemService(AlarmManager::class.java)
 

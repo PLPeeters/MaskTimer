@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModelProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -30,7 +31,7 @@ class MainActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceCh
     private lateinit var maskListAdapter: MaskListAdapter
     private lateinit var maskListViewModel: MaskListViewModel
     private val maskDatabaseDao: MaskDao by lazy { MaskDatabaseSingleton(application).maskDatabaseDao() }
-    private val notificationManager: NotificationManager by lazy { getSystemService(NotificationManager::class.java) }
+    private val notificationManager: NotificationManagerCompat by lazy { NotificationManagerCompat.from(this) }
     private val alarmManager: AlarmManager by lazy { getSystemService(AlarmManager::class.java)}
     private val localBroadcastManager: LocalBroadcastManager by lazy { LocalBroadcastManager.getInstance(this) }
     private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {

@@ -2,7 +2,6 @@ package com.plpeeters.masktimer
 
 import android.app.AlarmManager
 import android.app.AlertDialog
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
@@ -11,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.LayoutRes
+import androidx.core.app.NotificationManagerCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.daimajia.swipe.adapters.ArraySwipeAdapter
 import com.plpeeters.masktimer.data.Mask
@@ -28,7 +28,7 @@ class MaskListAdapter(
     private var masks: ArrayList<Mask>
 ): ArraySwipeAdapter<Mask>(context, layoutResource, masks) {
     private var baseTextColor: Int = -1
-    private val notificationManager: NotificationManager by lazy { context.getSystemService(NotificationManager::class.java) }
+    private val notificationManager: NotificationManagerCompat by lazy { NotificationManagerCompat.from(context) }
     private val alarmManager: AlarmManager by lazy { context.getSystemService(AlarmManager::class.java)}
     private val localBroadcastManager by lazy { LocalBroadcastManager.getInstance(context) }
 

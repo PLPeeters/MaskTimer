@@ -1,11 +1,11 @@
 package com.plpeeters.masktimer
 
 import android.app.AlarmManager
-import android.app.NotificationManager
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationManagerCompat
 import androidx.preference.PreferenceFragmentCompat
 import com.plpeeters.masktimer.data.Data
 import com.plpeeters.masktimer.data.Mask
@@ -18,7 +18,7 @@ import com.plpeeters.masktimer.utils.setAlarmForMask
 
 class SettingsActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private val sharedPreferences: SharedPreferences by lazy { getSharedPreferences() }
-    private val notificationManager: NotificationManager by lazy { getSystemService(NotificationManager::class.java) }
+    private val notificationManager: NotificationManagerCompat by lazy { NotificationManagerCompat.from(this) }
     private val alarmManager: AlarmManager by lazy { getSystemService(AlarmManager::class.java)}
 
     override fun onCreate(savedInstanceState: Bundle?) {

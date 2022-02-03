@@ -9,6 +9,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.plpeeters.masktimer.*
 import com.plpeeters.masktimer.data.Mask
 
@@ -49,7 +50,7 @@ fun NotificationManager.createNotificationChannels(context: Context) {
 }
 
 @SuppressLint("UnspecifiedImmutableFlag")
-fun NotificationManager.sendMaskTimerExpiredNotification(context: Context) {
+fun NotificationManagerCompat.sendMaskTimerExpiredNotification(context: Context) {
     val pendingIntent: PendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         PendingIntent.getActivity(
             context,
@@ -104,12 +105,12 @@ fun NotificationManager.sendMaskTimerExpiredNotification(context: Context) {
     notify(MASK_TIMER_EXPIRED_NOTIFICATION_ID, notification)
 }
 
-fun NotificationManager.dismissMaskTimerExpiredNotification() {
+fun NotificationManagerCompat.dismissMaskTimerExpiredNotification() {
     cancel(MASK_TIMER_EXPIRED_NOTIFICATION_ID)
 }
 
 @SuppressLint("UnspecifiedImmutableFlag")
-fun NotificationManager.createOrUpdateMaskTimerNotification(context: Context, mask: Mask, previousMask: Mask? = null) {
+fun NotificationManagerCompat.createOrUpdateMaskTimerNotification(context: Context, mask: Mask, previousMask: Mask? = null) {
     val pendingIntent: PendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         PendingIntent.getActivity(
             context,
@@ -201,6 +202,6 @@ fun NotificationManager.createOrUpdateMaskTimerNotification(context: Context, ma
     notify(MASK_TIMER_NOTIFICATION_ID, notification)
 }
 
-fun NotificationManager.dismissMaskTimerNotification() {
+fun NotificationManagerCompat.dismissMaskTimerNotification() {
     cancel(MASK_TIMER_NOTIFICATION_ID)
 }
