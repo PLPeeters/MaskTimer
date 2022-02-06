@@ -74,7 +74,10 @@ class MaskListAdapter(
         binding.replaceButton.setOnClickListener {
             notificationManager.dismissMaskTimerExpiredNotification()
             mask.replace()
-            alarmManager.setAlarmForMask(context, mask)
+
+            if (mask.isBeingWorn && !mask.isPaused) {
+                alarmManager.setAlarmForMask(context, mask)
+            }
 
             updateUi()
             notifyDataSetChanged()
