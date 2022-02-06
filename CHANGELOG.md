@@ -1,5 +1,9 @@
 # Changelog
 
+**1.2.7** (2022-02-06 18:23 CET)
+
+* Fixed list replace action setting an alarm even if a mask is not being worn
+
 **1.2.6** (2022-02-03 09:31 CET)
 
 * Fixed masks still being marked as paused when the user stops wearing a paused mask
